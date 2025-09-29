@@ -7,16 +7,24 @@ import { ObjectId } from "mongodb";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   const token = req.cookies.token;
 
   if (!token) return res.status(401).json({ message: "Not authenticated" });
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { accountId: string; role: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as {
+      accountId: string;
+      role: string;
+    };
 
     // Search for the account
-    const account = await findOne("accounts", { _id: new ObjectId(decoded.accountId) });
+    const account = await findOne("accounts", {
+      _id: new ObjectId(decoded.accountId),
+    });
     if (!account) return res.status(404).json({ message: "Account not found" });
 
     // Search the associated user to the account

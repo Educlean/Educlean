@@ -2,7 +2,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../lib/mongodb";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   try {
     const db = await getDb();
 
@@ -30,7 +33,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const schoolsCollection = db.collection("schools");
     await schoolsCollection.insertOne({
       schoolName: "Saint Patrick's School",
-      schoolAddress: { street: "555 Slocan St", city: "Vancouver", zip: "V6P 4W5" },
+      schoolAddress: {
+        street: "555 Slocan St",
+        city: "Vancouver",
+        zip: "V6P 4W5",
+      },
       schoolPrimaryContact: "+573001112233",
       shortName: "SPS",
     });
@@ -57,7 +64,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ],
     });
 
-    res.status(200).json({ message: "All collections created with a demo document" });
+    res
+      .status(200)
+      .json({ message: "All collections created with a demo document" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to initialize DB" });
