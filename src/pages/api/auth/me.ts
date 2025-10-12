@@ -9,7 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) {
   const token = req.cookies.token;
 
@@ -21,14 +21,14 @@ export default async function handler(
       role: string;
     };
 
-    // Search for the account
+    // Search for the account with caching
     const account = await findOne("accounts", {
       _id: new ObjectId(decoded.accountId),
-    });
+    }, { useCache: true, cacheTtl: 15 * 60 * 1000 }); // Cache for 15 minutes
     if (!account) return res.status(404).json({ message: "Account not found" });
 
-    // Search the associated user to the account
-    const user = await findOne("users", { accountId: decoded.accountId });
+    // Search the associated user to the account with caching
+    const user = await findOne("users", { accountId: decoded.accountId }, { useCache: true, cacheTtl: 15 * 60 * 1000 });
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // Return data from users collection

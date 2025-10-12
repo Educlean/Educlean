@@ -1,7 +1,6 @@
 import home from '../../assets/icons/Home.svg';
-import uploadFile from '../../assets/icons/UploadFile.svg';
-import createUser from '../../assets/icons/CreateUser.svg';
-import calculator from '../../assets/icons/calculator.svg';
+import request from '../../assets/icons/request.svg';
+import user from '../../assets/icons/user.svg';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -17,14 +16,14 @@ export default function SupervisorNavBar() {
       {/* Mobile */}
       <div className="flex justify-center lg:hidden">
         <div className="bg-[var(--secondary)] flex flex-row justify-between items-center h-12 w-40 p-4 rounded-lg">
-          <Link href="/supervisor/CreateAccount">
-            <Image src={createUser} alt="create-user-Icon" />
-          </Link>
-          <Link href="/supervisor/Dashboard">
+          <Link href="/cleaner/DashboardCleaner">
             <Image src={home} alt="Home-Icon" />
           </Link>
-          <Link href="/supervisor/UploadFile">
-            <Image src={uploadFile} alt="UploadFile-Icon" />
+          <Link href="/cleaner/Profile">
+            <Image src={user} alt="user-Icon" />
+          </Link>
+          <Link href="/cleaner/requests">
+            <Image src={request} alt="request-Icon" />
           </Link>
         </div>
       </div>
@@ -32,10 +31,10 @@ export default function SupervisorNavBar() {
       {/* Desktop */}
       <div className="lg:flex hidden w-full h-full">
         <div className="p-10 w-full flex flex-col gap-3">
-          <Link href="/supervisor/Dashboard">
+          <Link href="/cleaner/DashboardCleaner">
             <div
               className={`flex flex-row rounded-lg px-5 py-2 gap-3 ${
-                isActive('/supervisor/Dashboard') ? 'bg-[var(--light-gray)]' : ''
+                isActive('/cleaner/DashboardCleaner') ? 'bg-[var(--light-gray)]' : ''
               }`}
             >
               <Image src={home} alt="Home-Icon" />
@@ -43,38 +42,29 @@ export default function SupervisorNavBar() {
             </div>
           </Link>
 
-          <Link href="/supervisor/CreateAccount">
+          <Link href="/cleaner/Profile">
             <div
               className={`flex flex-row rounded-lg px-5 py-2 gap-3 ${
-                isActive('/supervisor/CreateAccount') ? 'bg-[var(--light-gray)]' : ''
+                isActive('/clenaer/Profile') ? 'bg-[var(--light-gray)]' : ''
               }`}
             >
-              <Image src={createUser} alt="create-user-Icon" />
-              <p>Create Account</p>
+              <Image src={user} alt="user-Icon" />
+              <p>Profile</p>
             </div>
           </Link>
 
-          <Link href="/supervisor/UploadFile">
+          <Link href="/cleaner/requests">
             <div
               className={`flex flex-row rounded-lg px-5 py-2 gap-3 ${
-                isActive('/supervisor/UploadFile') ? 'bg-[var(--light-gray)]' : ''
+                isActive('/cleaner/RequestsCleaner') ? 'bg-[var(--light-gray)]' : ''
               }`}
             >
-              <Image src={uploadFile} alt="UploadFile-Icon" />
-              <p>Schedule</p>
+              <Image src={request} alt="request-Icon" />
+              <p>Requests</p>
             </div>
           </Link>
 
-          <Link href="/supervisor/Calculator">
-            <div
-              className={`flex flex-row rounded-lg px-5 py-2 gap-3 ${
-                isActive('/supervisor/Calculator') ? 'bg-[var(--light-gray)]' : ''
-              }`}
-            >
-              <Image src={calculator} alt="calculator-Icon" />
-              <p>Calculator</p>
-            </div>
-          </Link>
+        
         </div>
       </div>
     </div>
