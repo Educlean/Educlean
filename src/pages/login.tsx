@@ -39,12 +39,11 @@ const Login: NextPageWithLayout = () => {
       console.log("Login Successful:", data);
       if (data.role === "Supervisor") {
         router.push("/supervisor/Dashboard");
+        return;
       } else {
-        alert("Here goes the cleaner's dashboard");
+        router.push("/cleaner/DashboardCleaner");
         return;
       }
-
-      router.push("/supervisor/Dashboard");
     } catch (err) {
       console.error("Error:", err);
     }
@@ -53,7 +52,7 @@ const Login: NextPageWithLayout = () => {
   return (
     <>
       {/* Content */}
-      <div className="min-h-screen flex flex-col justify-between p-5 md:p-10 md:max-w-lg md:m-auto lg:max-w-xl lg:mx-auto">
+      <div className="min-h-screen flex flex-col justify-between p-10 md:max-w-lg md:m-auto lg:max-w-xl lg:mx-auto">
         <h1 className="font-bold text-center text-3xl text-[var(--accent)]">
           WELCOME TO EDUCLEAN
         </h1>
