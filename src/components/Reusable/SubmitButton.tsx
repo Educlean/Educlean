@@ -1,2 +1,0 @@
-type ButtonSubmitProps = {
-    label: string;
