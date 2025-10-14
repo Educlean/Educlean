@@ -9,7 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import locationIcon from "../../assets/icons/location.svg";
 import { UserProvider, useUser } from "@/context/UserContext";
-import { useMemo } from "react";
+// import { useMemo } from "react";
 import useSWR from "swr";
 import { format } from "date-fns-tz";
 

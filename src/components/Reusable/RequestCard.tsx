@@ -45,13 +45,12 @@ function Card({
           <div className="flex flex-row gap-3">
             <p>{`${title} (${room})`}</p>
             <p
-              className={`${
-                status === "Pending"
+              className={`${status === "Pending"
                   ? "text-red-500 bg-red-100 rounded px-1"
                   : status === "In progress"
                     ? "text-blue-900 bg-blue-50 rounded px-1"
                     : "text-primary bg-green-100 rounded px-1"
-              } font-bold`}
+                } font-bold`}
             >
               {status}
             </p>

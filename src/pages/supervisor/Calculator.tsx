@@ -98,6 +98,8 @@ const cleaningTasks = {
     ],
 };
 
+
+
 export default function CleaningCalculator() {
     const [formData, setFormData] = useState({});
 
@@ -138,7 +140,7 @@ export default function CleaningCalculator() {
                 ...prev,
                 [area]: {
                     ...current,
-                    tasks: allSelected ? [] : allTasks, 
+                    tasks: allSelected ? [] : allTasks,
                 },
             };
         });
@@ -164,8 +166,8 @@ export default function CleaningCalculator() {
     return (
         <div className="">
             <Banner label="Cleaning Time Calculator" description="Estimate cleaning times based on selected tasks and frequencies." />
-            <div className="mx-5 ">
-                <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 gap-2 p-4 bg-gray-200 rounded-lg lg:max-w-6xl mx-auto lg:overflow-y-auto max-h-[500px]">
+            <div className="mx-5 my-5">
+                <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 gap-2 p-4 bg-gray-200 rounded-lg lg:max-w-6xl mx-auto lg:overflow-y-auto lg:max-h-[500px]">
                     {Object.entries(cleaningTasks).map(([area, tasks]) => (
                         <div key={area} className="bg-white p-3 rounded mt-4 border border-2 border-gray-100">
                             <div className=" ">
@@ -243,13 +245,15 @@ export default function CleaningCalculator() {
 
                     ))}
                 </div>
-                <div className="my-4 rounded">
-                    <h2 className="text-lg font-semibold mb-2">Time spent</h2>
-                    <p>Daily: {(totals.day / 60).toFixed(0)} hour</p>
-                    <p>Weekly: {(totals.week / 60).toFixed(0)} hour</p>
-                    <p>Monthly: {(totals.month / 60).toFixed(0)} hour</p>
-
-
+                <div className="my-10 rounded max-w-xl">
+                    <div className="bg-[var(--primary)] rounded-lg ">
+                        <h2 className="text-lg font-semibold mb-2 p-2 text-white ">Time nedeed:</h2>
+                    </div>
+                    <div className="flex flex-row justify-between gap-10 p-2 ">
+                        <p><strong>Daily:</strong> {(totals.day / 60).toFixed(0)} hour</p>
+                        <p><strong>Weekly:</strong> {(totals.week / 60).toFixed(0)} hour</p>
+                        <p><strong>Monthly:</strong> {(totals.month / 60).toFixed(0)} hour</p>
+                    </div>
                 </div>
             </div>
         </div>
