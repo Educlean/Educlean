@@ -1,0 +1,16 @@
+[
+  {
+    "school": "OLS",
+    "status": "Pending",
+    "title": "Toilet Clogged",
+    "time": "2025-09-06T12:00:00.000Z",
+    "description": "Girls washroom is clogged, please fix it ASAP, we have an event later, the principal is mad."
+  },
+  {
+    "school": "HLS",
+    "status": "In progress",
+    "title": "Broken Window",
+    "time": "2025-09-06T14:30:00.000Z",
+    "description": "Classroom window is broken"
+  }
+]
