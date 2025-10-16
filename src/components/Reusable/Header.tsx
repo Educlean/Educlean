@@ -1,6 +1,6 @@
-import logoHeader from "../../assets/Images/logo.png";
-import bell from "../../assets/Icons/bell.png";
-import Image from "next/image";
+import logoHeader from '../../assets/Images/logo.png';
+import bell from '../../assets/Icons/bell.png';
+import Image from 'next/image';
 
 export default function Header() {
   return (
