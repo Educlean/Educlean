@@ -62,7 +62,7 @@ export default function CreateSchool({ schools }: { schools: SchoolCard[] }) {
         {/* Add school form */}
         <div className="flex flex-col gap-5 w-full bg-gray-200 p-5 rounded-lg ">
           <div
-            className="flex flex-row justify-between gap-2 items-center cursor-pointer w-full border p-2 max-w-[200px] rounded"
+            className="flex flex-row justify-between gap-2 items-center cursor-pointer w-full cursor-pointer border p-2 max-w-[200px] rounded"
             onClick={() => setIsActive((prev) => !prev)}
           >
             <span>Add new school</span>

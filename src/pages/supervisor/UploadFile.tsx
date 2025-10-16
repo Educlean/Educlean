@@ -1,12 +1,12 @@
-'use client';
-import React from 'react';
-import Banner from '../../components/Reusable/Banner';
-import uploadFile from '../../assets/icons/UploadFile.svg';
-import { useState } from 'react';
-import close from '../../assets/icons/close.svg';
-import GButton from '../../components/Reusable/GButton';
-import PrimaryButton from '../../components/Reusable/PrimaryButton';
-import Image from 'next/image';
+"use client";
+import React from "react";
+import Banner from "../../components/Reusable/Banner";
+import uploadFile from "../../assets/icons/UploadFile.svg";
+import { useState } from "react";
+import close from "../../assets/icons/close.svg";
+import GButton from "../../components/Reusable/GButton";
+import PrimaryButton from "../../components/Reusable/PrimaryButton";
+import Image from "next/image";
 
 export default function UploadFile() {
   const [files, setFiles] = useState<File[]>([]);
@@ -29,45 +29,44 @@ export default function UploadFile() {
     const selectedFiles: File[] = Array.from(filesList);
     setFiles((prev) => [...prev, ...selectedFiles]);
     setCounter((prev) => prev + selectedFiles.length);
-    event.target.value = '';
+    event.target.value = "";
   };
 
   const eliminateFile = (index: number) => {
-    console.log('Deleting file');
+    console.log("Deleting file");
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
     setCounter(counter - 1);
   };
 
   const handleUpload = async () => {
-  if (files.length === 0) {
-    alert("There is not file selected");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", files[0]); // Only uploads the first file since the API only accepts 1
-
-  try {
-    const res = await fetch("/api/schedules", {
-      method: "POST",
-      body: formData, 
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      alert(data.message || "Schedule uploaded sucessfully");
-      setFiles([]); // clean the files array
-      setCounter(0);
-    } else {
-      alert(data.error || "Error uploading file");
+    if (files.length === 0) {
+      alert("There is not file selected");
+      return;
     }
-  } catch (error) {
-    console.error(error);
-    alert("Error uploading file");
-  }
-};
 
+    const formData = new FormData();
+    formData.append("file", files[0]); // Only uploads the first file since the API only accepts 1
+
+    try {
+      const res = await fetch("/api/schedules", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(data.message || "Schedule uploaded sucessfully");
+        setFiles([]); // clean the files array
+        setCounter(0);
+      } else {
+        alert(data.error || "Error uploading file");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error uploading file");
+    }
+  };
 
   console.log(files);
 
@@ -85,7 +84,7 @@ export default function UploadFile() {
           </p>
           <p className="mb-3 lg:text-sm">Only Excel Files Allowed</p>
           <label
-            className="border-1 border-gray-400 border-dashed p-5 flex flex-col justify-center items-center rounded-md cursor-pointer lg:h-[20rem]"
+            className="border-1 border-gray-400 border-dashed p-5 flex flex-col justify-center items-center rounded-md cursor-pointer lg:h-[20rem] "
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           >
@@ -127,7 +126,11 @@ export default function UploadFile() {
               label="Cancel"
               className="flex-1 lg:bg-white border border-gray-400"
             />
-            <PrimaryButton label="Save schedule" className="flex-1" onClick={handleUpload}/>
+            <PrimaryButton
+              label="Save schedule"
+              className="flex-1"
+              onClick={handleUpload}
+            />
           </div>
         </div>
       </div>
