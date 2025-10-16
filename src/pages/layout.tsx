@@ -1,36 +1,20 @@
 import Header from "../components/Reusable/Header";
 import SnavBar from "../components/Reusable/SupervisorNav";
-import CleanerNav from "../components/Reusable/CleanerNav";
-import { ReactNode } from "react";
-import { useUser } from "../context/UserContext";
+import { ReactNode, useState } from "react";
 
 type LayoutProps = {
   children: ReactNode;
 };
 
 export default function Layout({ children }: LayoutProps) {
-  const { user } = useUser();
-
-  // Function to render the appropriate navigation based on user role
-  const renderNavigation = () => {
-    if (!user) return null;
-    
-    switch (user.role?.toLowerCase()) {
-      case 'supervisor':
-        return <SnavBar />;
-      case 'cleaner':
-        return <CleanerNav />;
-      default:
-        return null;
-    }
-  };
+  const [user, setUser] = useState("SP");
 
   return (
     <div>
       <Header />
       <div className="lg:flex lg:flex-row-reverse">
         <main className="lg:bg-[var(--light-gray)] flex-1">{children}</main>
-        {renderNavigation()}
+        {user === "SP" ? <SnavBar /> : null}
       </div>
     </div>
   );

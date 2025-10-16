@@ -1,10 +1,9 @@
-import Image from 'next/image';
-import Banner from '../../components/Reusable/Banner';
-import createAccount from '../../assets/Images/createAccount.png';
-import PrimaryButton from '../../components/Reusable/PrimaryButton';
-import React from 'react';
-import { useRouter } from 'next/router';
-
+import Image from "next/image";
+import Banner from "../../components/Reusable/Banner";
+import createAccount from "../../assets/Images/createAccount.png";
+import PrimaryButton from "../../components/Reusable/PrimaryButton";
+import React from "react";
+import { useRouter } from "next/router";
 
 export default function CreateAccount() {
   const router = useRouter();
@@ -12,32 +11,30 @@ export default function CreateAccount() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     console.log({
-      userId: formData.get('userId'),
-      password: formData.get('password'),
-      role: formData.get('role'),
+      userId: formData.get("userId"),
+      password: formData.get("password"),
+      role: formData.get("role"),
     });
 
-    const response = await fetch('/api/accounts', {
+    const response = await fetch("/api/accounts", {
       method: "POST",
-      headers: { "Content-Type": 'application/json' },
-      body: JSON.stringify(
-        {
-          employeeID: formData.get('employeeID'),
-          password: formData.get('password'),
-          role: formData.get('role')
-        }
-      )
-    })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        employeeID: formData.get("employeeID"),
+        password: formData.get("password"),
+        role: formData.get("role"),
+      }),
+    });
 
     const data = await response.json();
 
     if (!response.ok) {
-      alert(data.message || 'Error creating account');
-      return; 
+      alert(data.message || "Error creating account");
+      return;
     }
 
-    alert('Account created successfully!');
-    router.push('/supervisor/Dashboard');
+    alert("Account created successfully!");
+    router.push("/supervisor/Dashboard");
   };
 
   return (
@@ -63,7 +60,7 @@ export default function CreateAccount() {
           <input
             name="employeeID"
             type="text"
-            className="border border-gray-300 h-10 p-3 rounded-lg"
+            className="border border-gray-300 h-10 p-3 rounded-lg outline-[var(--primary)] "
             placeholder="Create ID"
           ></input>
         </div>
@@ -72,13 +69,16 @@ export default function CreateAccount() {
           <input
             name="password"
             type="text"
-            className="border border-gray-300 h-10 p-3 rounded-lg"
+            className="border border-gray-300 h-10 p-3 rounded-lg outline-[var(--primary)]"
             placeholder="Create Password"
           ></input>
         </div>
         <div className="flex flex-col gap-2">
           <label>Role</label>
-          <select className="border h-10 border-gray-300 px-3 rounded-lg" name="role">
+          <select
+            className="border h-10 border-gray-300 px-3 rounded-lg outline-[var(--primary)]"
+            name="role"
+          >
             <option value="" className="text-primary">
               Select role
             </option>
@@ -86,11 +86,7 @@ export default function CreateAccount() {
             <option>Supervisor</option>
           </select>
         </div>
-        <PrimaryButton
-          label="Create account"
-          type="submit"
-          className="bg-primary rounded-lg p-3 text-white mt-2"
-        />
+        <PrimaryButton label="Create account" type="submit" className="" />
       </form>
     </div>
   );
