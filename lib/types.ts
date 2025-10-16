@@ -13,6 +13,7 @@ export interface Allergy {
 }
 
 export interface User {
+  role: any;
   _id?: string;
   accountId: string; // reference to Accounts._id
   name: string;
