@@ -4,7 +4,7 @@ import * as XLSX from "xlsx";
 import { Db, ObjectId } from "mongodb";
 import fs from "fs";
 import { getDb } from "../../../../lib/mongodb";
-import { findMany } from "../../../../lib/helpers";
+//import { findMany } from "../../../../lib/helpers";
 
 export const config = {
   api: {
