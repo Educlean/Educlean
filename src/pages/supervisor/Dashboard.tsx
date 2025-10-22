@@ -69,7 +69,13 @@ function SDashboardContent() {
 
 
   if (loadingRequests || loadingSchools || loadingEmployees) {
-    return <div className="p-5 text-3xl">Loading...</div>;
+    return (
+          <div className="bg-white rounded-lg p-6 mb-6">
+            <div className="text-center py-8">
+              <div className="inline-block w-8 h-8 border-4 border-gray-300 border-t-[#39B52D] rounded-full animate-spin"></div>
+              <p className="mt-2 text-gray-500">Loading your schedule...</p>
+            </div>
+          </div>)
   }
 
   return (

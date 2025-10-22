@@ -4,6 +4,7 @@ import CleanerNav from "../components/Reusable/CleanerNav";
 import { ReactNode } from "react";
 import { useUser } from "../context/UserContext";
 
+
 type LayoutProps = {
   children: ReactNode;
 };
@@ -11,6 +12,7 @@ type LayoutProps = {
 export default function Layout({ children }: LayoutProps) {
   const { user } = useUser();
 
+  console.log(user?.role, 'USER')
   // Function to render the appropriate navigation based on user role
   const renderNavigation = () => {
     if (!user) return null;
@@ -30,7 +32,8 @@ export default function Layout({ children }: LayoutProps) {
       <Header />
       <div className="lg:flex lg:flex-row-reverse">
         <main className="lg:bg-[var(--light-gray)] flex-1">{children}</main>
-        {renderNavigation()}
+        {user && renderNavigation() }
+      
       </div>
     </div>
   );
