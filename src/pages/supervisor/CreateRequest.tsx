@@ -55,7 +55,7 @@ export default function CreateRequest() {
         description: formData.get("description"),
         title: formData.get("title"),
         room: formData.get("room"),
-        status: "Pending",
+        status: "todo",
         // time: new Date(),
         schoolId,
       }),
