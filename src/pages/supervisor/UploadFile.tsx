@@ -104,29 +104,32 @@ export default function UploadFile() {
               multiple
               onChange={handleFileSelect}
               className="hidden"
-              // accept=".xlx"
+            // accept=".xlx"
             />
           </label>
           {files.length > 0
             ? files.map((f, index) => (
-                <div
-                  key={index}
-                  className="m-4 bg-[var(--light-gray)] px-3 py-2 rounded-md flex justify-between md:mx-0 lg:bg-gray-200"
-                >
-                  <p>{f.name}</p>
-                  <Image
-                    src={close}
-                    alt="close-icon"
-                    onClick={() => eliminateFile(index)}
-                    className="cursor-pointer"
-                  ></Image>
-                </div>
-              ))
+              <div
+                key={index}
+                className="m-4 bg-[var(--light-gray)] px-3 py-2 rounded-md flex justify-between md:mx-0 lg:bg-gray-200"
+              >
+                <p>{f.name}</p>
+                <Image
+                  src={close}
+                  alt="close-icon"
+                  onClick={() => eliminateFile(index)}
+                  className="cursor-pointer"
+                ></Image>
+              </div>
+            ))
             : null}
-          <div className="flex justify-center mt-5 gap-2 md:mt-5 lg:w-1/2 lg:mx-auto">
+          <div
+            className="flex mt-5 gap-2 md:mt-5 
+             lg:w-1/2 lg:ml-auto lg:justify-end"
+          >
             <GButton
               label="Cancel"
-              className="flex-1 lg:bg-white border border-gray-400"
+              className="flex-1 border border-gray-400"
             />
             <PrimaryButton
               label="Save schedule"
@@ -135,9 +138,11 @@ export default function UploadFile() {
             />
           </div>
 
+
+
         </div>
       </div>
-      {isActive ? <Modal title="File Uploaded" text="Schedule uploaded sucessfully" isOpen={true} onClose={() => setIsActive(false)}/> : null}
+      {isActive ? <Modal title="File Uploaded" text="Schedule uploaded sucessfully" isOpen={true} onClose={() => setIsActive(false)} /> : null}
     </div>
   );
 }
