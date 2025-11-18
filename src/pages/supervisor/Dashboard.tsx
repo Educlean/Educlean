@@ -9,9 +9,12 @@ import Image from "next/image";
 import Link from "next/link";
 import locationIcon from "../../assets/icons/location.svg";
 import { UserProvider, useUser } from "@/context/UserContext";
+import StackedBarChart from "../../components/Reusable/StackedBarChart"
 // import { useMemo } from "react";
 import useSWR from "swr";
 import { format } from "date-fns-tz";
+
+
 
 interface School {
   _id: string;
@@ -70,12 +73,12 @@ function SDashboardContent() {
 
   if (loadingRequests || loadingSchools || loadingEmployees) {
     return (
-          <div className="bg-white rounded-lg p-6 mb-6">
-            <div className="text-center py-8">
-              <div className="inline-block w-8 h-8 border-4 border-gray-300 border-t-[#39B52D] rounded-full animate-spin"></div>
-              <p className="mt-2 text-gray-500">Loading your schedule...</p>
-            </div>
-          </div>)
+      <div className="bg-white min-h-screen flex items-center justify-center rounded-lg p-6 mb-6">
+        <div className="text-center py-8">
+          <div className="inline-block w-8 h-8 border-4 border-gray-300 border-t-[#39B52D] rounded-full animate-spin"></div>
+          <p className="mt-2 text-gray-500">Loading your dashboard...</p>
+        </div>
+      </div>)
   }
 
   return (
@@ -84,7 +87,7 @@ function SDashboardContent() {
         <div>
           <Banner
             label={`Hi, ${displayName.split(" ")[0]} 👋🏻`}
-            className="lg:bg-[var(--lightGray)] px-5 py-5"
+            className="lg:bg-[var(--light-gray)] px-5 py-5"
             description="Your dashboard today!"
           />
 
@@ -142,8 +145,10 @@ function SDashboardContent() {
                   </div>
                 </div>
               ))}
-
             </div>
+          </div>
+          <div className="bg-[var(--light-gray)] md:bg-white mx-4 mb-4 p-5 rounded-sm">
+            <StackedBarChart/>
           </div>
         </div>
       ) : null}

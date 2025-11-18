@@ -7,10 +7,12 @@ import close from "../../assets/icons/close.svg";
 import GButton from "../../components/Reusable/GButton";
 import PrimaryButton from "../../components/Reusable/PrimaryButton";
 import Image from "next/image";
+import Modal from "@/components/Reusable/Modal";
 
 export default function UploadFile() {
   const [files, setFiles] = useState<File[]>([]);
   const [counter, setCounter] = useState<number>(0);
+  const [isActive, setIsActive] = useState<boolean>(false);
 
   const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
@@ -56,7 +58,7 @@ export default function UploadFile() {
       const data = await res.json();
 
       if (res.ok) {
-        alert(data.message || "Schedule uploaded sucessfully");
+        setIsActive(true);
         setFiles([]); // clean the files array
         setCounter(0);
       } else {
@@ -134,6 +136,7 @@ export default function UploadFile() {
           </div>
         </div>
       </div>
+      {isActive ? <Modal title="File Uploaded" text="Schedule uploaded sucessfully" isOpen={true} onClose={() => setIsActive(false)}/> : null}
     </div>
   );
 }

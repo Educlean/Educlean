@@ -24,6 +24,17 @@ function SupervisorNavBar() {
     []
   );
 
+  const navItemsMobile = useMemo(
+    () => [
+      { href: "/supervisor/CreateAccount", label: "Create Account", icon: createUser },
+      { href: "/supervisor/UploadFile", label: "Schedule", icon: uploadFile },
+      { href: "/supervisor/Dashboard", label: "Home", icon: home },
+      { href: "/supervisor/Calculator", label: "Calculator", icon: calculator },
+      { href: "/supervisor/School", label: "Schools", icon: book },
+    ],
+    []
+  );
+
   // Función simple para marcar el activo
   const isActive = (path: string) => router.pathname === path;
 
@@ -31,10 +42,16 @@ function SupervisorNavBar() {
     <div className="lg:w-[300px]">
       {/* Mobile */}
       <div className="flex justify-center lg:hidden">
-        <div className="bg-[var(--secondary)] flex flex-row justify-around p-4 items-center h-20 w-full rounded-lg">
-          {navItems.map(({ href, icon, label }) => (
+        <div className="bg-[var(--secondary)] flex flex-row justify-around px-30 items-center h-15 w-full rounded-lg">
+          {navItemsMobile.map(({ href, icon, label }) => (
             <Link key={href} href={href}>
+              <div
+                className={`flex flex-row rounded-lg px-2 py-2 gap-3 ${
+                  isActive(href) ? "bg-green-50" : ""
+                }`}
+              >
               <Image src={icon} alt={`${label}-Icon`} />
+              </div>
             </Link>
           ))}
         </div>

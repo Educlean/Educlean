@@ -9,7 +9,7 @@ import { SchoolCard } from "@/components/Reusable/SchoolCard";
 import CardSchool from "@/components/Reusable/SchoolCard";
 import SchoolForm from "@/components/Reusable/AddSchool";
 import search from "@/assets/icons/search.svg";
-import Modal from "@/components/Reusable/Modal";
+
 // import { FixedSizeList } from 'react-window';
 
 interface schoolProps {
@@ -74,7 +74,7 @@ export default function CreateSchool({ schools }: { schools: SchoolCard[] }) {
             />
           </div>
           <div className="w-full">
-            {isActive ? <SchoolForm isActive={isActive} /> : null}
+            {isActive ? <SchoolForm isActive={isActive} setSArray={setSArray} /> : null}
           </div>
         </div>
       </div>

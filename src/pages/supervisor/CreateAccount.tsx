@@ -2,13 +2,14 @@ import Image from "next/image";
 import Banner from "../../components/Reusable/Banner";
 import createAccount from "../../assets/Images/createAccount.png";
 import PrimaryButton from "../../components/Reusable/PrimaryButton";
-import React from "react";
-import { useRouter } from "next/router";
+import React, { useState } from "react";
+import Modal from "@/components/Reusable/Modal";
 
 export default function CreateAccount() {
-  const router = useRouter();
+  const [isActive, setIsActive] = useState<boolean>(false);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement;
     const formData = new FormData(e.currentTarget);
     console.log({
       userId: formData.get("userId"),
@@ -29,12 +30,13 @@ export default function CreateAccount() {
     const data = await response.json();
 
     if (!response.ok) {
-      alert(data.message || "Error creating account");
+      alert(`🚨 ${data.message} `|| "Error creating account");
       return;
     }
 
-    alert("Account created successfully!");
-    router.push("/supervisor/Dashboard");
+    form.reset();
+    setIsActive(true);
+    
   };
 
   return (
@@ -88,6 +90,7 @@ export default function CreateAccount() {
         </div>
         <PrimaryButton label="Create account" type="submit" className="" />
       </form>
+      {isActive ? <Modal text="New Account Created Successfully" title="Account created" isOpen={true} onClose={() => setIsActive(false)}/> : null}
     </div>
   );
 }
