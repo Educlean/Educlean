@@ -123,7 +123,7 @@ export default function UploadFile() {
                 </div>
               ))
             : null}
-          <div className="flex justify-between mt-5 gap-2 md:mt-5 lg:w-1/2 lg:ml-auto ">
+          <div className="flex justify-center mt-5 gap-2 md:mt-5 lg:w-1/2 lg:mx-auto">
             <GButton
               label="Cancel"
               className="flex-1 lg:bg-white border border-gray-400"
@@ -134,6 +134,7 @@ export default function UploadFile() {
               onClick={handleUpload}
             />
           </div>
+
         </div>
       </div>
       {isActive ? <Modal title="File Uploaded" text="Schedule uploaded sucessfully" isOpen={true} onClose={() => setIsActive(false)}/> : null}
