@@ -1,0 +1,12 @@
+[
+  { "id": "1", "name": "Liam Smith", "role": "Cleaner", "schoolId": "1" },
+  { "id": "2", "name": "Kenji Tanaka", "role": "Cleaner", "schoolId": "1" },
+  { "id": "3", "name": "Carlos Fernández", "role": "Cleaner", "schoolId": "2" },
+  { "id": "4", "name": "John O'Connor", "role": "Cleaner", "schoolId": "2" },
+  { "id": "5", "name": "Mateo Silva", "role": "Cleaner", "schoolId": "3" },
+  { "id": "6", "name": "Ahmed Khan", "role": "Cleaner", "schoolId": "3" },
+  { "id": "7", "name": "Elena Petrova", "role": "Cleaner", "schoolId": "1" },
+  { "id": "8", "name": "Yuki Nakamura", "role": "Cleaner", "schoolId": "2" },
+  { "id": "9", "name": "Sofia Rossi", "role": "Cleaner", "schoolId": "3" },
+  { "id": "10", "name": "Aisha Patel", "role": "Cleaner", "schoolId": "1" }
+]
