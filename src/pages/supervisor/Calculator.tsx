@@ -105,7 +105,7 @@ const cleaningTasks: CleaningTasks = {
     auditorium: [
         { task: "Vacuum/sweep, mop, garbage", minutes: 30 },
     ],
-};
+} as Record<string, { task: string; minutes: number }[]>;
 
 type AreaData = {
     tasks: string[];
@@ -117,8 +117,16 @@ type FormData = {
     [area: string]: AreaData;
 };
 
+
+interface AreaData {
+    tasks: string[];
+    rooms: number | string;
+    freq: number | string;
+    [key: string]: any;
+}
+
 export default function CleaningCalculator() {
-    const [formData, setFormData] = useState<FormData>({});
+    const [formData, setFormData] = useState<Record<string, AreaData>>({});
 
     const toggleTask = (area: string, task: string) => {
         setFormData((prev) => {
@@ -169,10 +177,12 @@ export default function CleaningCalculator() {
             tasks.forEach((taskName: string) => {
                 const task = cleaningTasks[area].find((t: CleaningTask) => t.task === taskName);
                 if (task) {
-                    const perDay = task.minutes * rooms;
+                    const r = Number(rooms);
+                    const f = Number(freq);
+                    const perDay = task.minutes * r;
                     acc.day += perDay;
-                    acc.week += perDay * freq;
-                    acc.month += perDay * freq * 4;
+                    acc.week += perDay * f;
+                    acc.month += perDay * f * 4;
                 }
             });
             return acc;
