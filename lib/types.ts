@@ -67,3 +67,12 @@ export interface Schedule {
   weekStart: Date;
   shifts: Shift[];
 }
+
+// ---------------- Modal ----------------
+export interface modalData {
+  text: string;
+  title: string;
+  isOpen: boolean;
+  onClose: () => void;
+  className?: string;
+}
