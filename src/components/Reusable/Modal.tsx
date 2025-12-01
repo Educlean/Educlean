@@ -1,8 +1,8 @@
-import { modalData } from "../../../lib/types";
+import { ModalData } from "../../../lib/types";
 import Image from "next/image";
 
 
-export default function Modal({ text, title, isOpen, onClose, className }: modalData) {
+export default function Modal({ text, title, isOpen, onClose, className }: ModalData) {
     if (!isOpen) return null;
 
     return (
