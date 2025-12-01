@@ -69,7 +69,7 @@ export interface Schedule {
 }
 
 // ---------------- Modal ----------------
-export interface modalData {
+export interface ModalData {
   text: string;
   title: string;
   isOpen: boolean;
