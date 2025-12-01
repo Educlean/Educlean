@@ -2,7 +2,16 @@ import React, { useState } from "react";
 import Banner from "@/components/Reusable/Banner";
 import PrimaryButton from "@/components/Reusable/PrimaryButton";
 
-const cleaningTasks = {
+type CleaningTask = {
+    task: string;
+    minutes: number;
+};
+
+type CleaningTasks = {
+    [key: string]: CleaningTask[];
+};
+
+const cleaningTasks: CleaningTasks = {
     classrooms: [
         { task: "Desk wiping", minutes: 5 },
         { task: "Dusting", minutes: 4 },
@@ -98,7 +107,15 @@ const cleaningTasks = {
     ],
 } as Record<string, { task: string; minutes: number }[]>;
 
+type AreaData = {
+    tasks: string[];
+    rooms: number;
+    freq: number;
+};
 
+type FormData = {
+    [area: string]: AreaData;
+};
 
 
 interface AreaData {
@@ -140,9 +157,9 @@ export default function CleaningCalculator() {
     const toggleAllTasks = (area: string) => {
         setFormData((prev) => {
             const current = prev[area] || { tasks: [], rooms: 1, freq: 1 };
-            const allTasks = cleaningTasks[area].map((t) => t.task);
+            const allTasks = cleaningTasks[area].map((t: CleaningTask) => t.task);
 
-            const allSelected = allTasks.every((t) => current.tasks.includes(t));
+            const allSelected = allTasks.every((t: string) => current.tasks.includes(t));
 
             return {
                 ...prev,
@@ -157,8 +174,8 @@ export default function CleaningCalculator() {
 
     const totals = Object.entries(formData).reduce(
         (acc, [area, { tasks, rooms, freq }]) => {
-            tasks.forEach((taskName) => {
-                const task = cleaningTasks[area].find((t) => t.task === taskName);
+            tasks.forEach((taskName: string) => {
+                const task = cleaningTasks[area].find((t: CleaningTask) => t.task === taskName);
                 if (task) {
                     const r = Number(rooms);
                     const f = Number(freq);
