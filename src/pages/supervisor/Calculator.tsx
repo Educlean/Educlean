@@ -2,16 +2,7 @@ import React, { useState } from "react";
 import Banner from "@/components/Reusable/Banner";
 import PrimaryButton from "@/components/Reusable/PrimaryButton";
 
-type CleaningTask = {
-    task: string;
-    minutes: number;
-};
-
-type CleaningTasks = {
-    [key: string]: CleaningTask[];
-};
-
-const cleaningTasks: CleaningTasks = {
+const cleaningTasks = {
     classrooms: [
         { task: "Desk wiping", minutes: 5 },
         { task: "Dusting", minutes: 4 },
@@ -105,28 +96,12 @@ const cleaningTasks: CleaningTasks = {
     auditorium: [
         { task: "Vacuum/sweep, mop, garbage", minutes: 30 },
     ],
-} as Record<string, { task: string; minutes: number }[]>;
-
-type AreaData = {
-    tasks: string[];
-    rooms: number;
-    freq: number;
-};
-
-type FormData = {
-    [area: string]: AreaData;
 };
 
 
-interface AreaData {
-    tasks: string[];
-    rooms: number | string;
-    freq: number | string;
-    [key: string]: any;
-}
 
 export default function CleaningCalculator() {
-    const [formData, setFormData] = useState<Record<string, AreaData>>({});
+    const [formData, setFormData] = useState({});
 
     const toggleTask = (area: string, task: string) => {
         setFormData((prev) => {
@@ -157,9 +132,9 @@ export default function CleaningCalculator() {
     const toggleAllTasks = (area: string) => {
         setFormData((prev) => {
             const current = prev[area] || { tasks: [], rooms: 1, freq: 1 };
-            const allTasks = cleaningTasks[area].map((t: CleaningTask) => t.task);
+            const allTasks = cleaningTasks[area].map((t) => t.task);
 
-            const allSelected = allTasks.every((t: string) => current.tasks.includes(t));
+            const allSelected = allTasks.every((t) => current.tasks.includes(t));
 
             return {
                 ...prev,
@@ -174,15 +149,13 @@ export default function CleaningCalculator() {
 
     const totals = Object.entries(formData).reduce(
         (acc, [area, { tasks, rooms, freq }]) => {
-            tasks.forEach((taskName: string) => {
-                const task = cleaningTasks[area].find((t: CleaningTask) => t.task === taskName);
+            tasks.forEach((taskName) => {
+                const task = cleaningTasks[area].find((t) => t.task === taskName);
                 if (task) {
-                    const r = Number(rooms);
-                    const f = Number(freq);
-                    const perDay = task.minutes * r;
+                    const perDay = task.minutes * rooms;
                     acc.day += perDay;
-                    acc.week += perDay * f;
-                    acc.month += perDay * f * 4;
+                    acc.week += perDay * freq;
+                    acc.month += perDay * freq * 4;
                 }
             });
             return acc;
@@ -194,7 +167,7 @@ export default function CleaningCalculator() {
         <div className="">
             <Banner label="Cleaning Time Calculator" description="Estimate cleaning times based on selected tasks and frequencies." />
             <div className="mx-5 my-5">
-                <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 gap-2 p-4 bg-gray-200 rounded-lg lg:max-w-6xl mx-auto lg:overflow-y-auto lg:max-h-[500px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-4 bg-gray-200 rounded-lg lg:max-w-6xl mx-auto lg:overflow-y-auto lg:max-h-[500px]">
                     {Object.entries(cleaningTasks).map(([area, tasks]) => (
                         <div key={area} className="bg-white p-3 rounded mt-4 border border-2 border-gray-100">
                             <div className=" ">
@@ -250,7 +223,7 @@ export default function CleaningCalculator() {
 
                                         />
                                         <span className="w-4 h-4 border-2 border-gray-300 rounded-sm flex-shrink-0
-                   flex items-center justify-center peer-checked:bg-[var(--accent)] peer-checked:border-none transition-colors">
+flex items-center justify-center peer-checked:bg-[var(--accent)] peer-checked:border-none transition-colors">
                                             <svg
                                                 className="hidden w-3 h-3 text-white peer-checked:block"
                                                 fill="none"
