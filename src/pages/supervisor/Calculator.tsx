@@ -105,7 +105,7 @@ const cleaningTasks: CleaningTasks = {
     auditorium: [
         { task: "Vacuum/sweep, mop, garbage", minutes: 30 },
     ],
-} as Record<string, { task: string; minutes: number }[]>;
+};
 
 type AreaData = {
     tasks: string[];
@@ -117,16 +117,8 @@ type FormData = {
     [area: string]: AreaData;
 };
 
-
-interface AreaData {
-    tasks: string[];
-    rooms: number | string;
-    freq: number | string;
-    [key: string]: any;
-}
-
 export default function CleaningCalculator() {
-    const [formData, setFormData] = useState<Record<string, AreaData>>({});
+    const [formData, setFormData] = useState({});
 
     const toggleTask = (area: string, task: string) => {
         setFormData((prev) => {
@@ -177,12 +169,10 @@ export default function CleaningCalculator() {
             tasks.forEach((taskName: string) => {
                 const task = cleaningTasks[area].find((t: CleaningTask) => t.task === taskName);
                 if (task) {
-                    const r = Number(rooms);
-                    const f = Number(freq);
-                    const perDay = task.minutes * r;
+                    const perDay = task.minutes * rooms;
                     acc.day += perDay;
-                    acc.week += perDay * f;
-                    acc.month += perDay * f * 4;
+                    acc.week += perDay * freq;
+                    acc.month += perDay * freq * 4;
                 }
             });
             return acc;
@@ -194,7 +184,7 @@ export default function CleaningCalculator() {
         <div className="">
             <Banner label="Cleaning Time Calculator" description="Estimate cleaning times based on selected tasks and frequencies." />
             <div className="mx-5 my-5">
-                <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 gap-2 p-4 bg-gray-200 rounded-lg lg:max-w-6xl mx-auto lg:overflow-y-auto lg:max-h-[500px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-4 bg-gray-200 rounded-lg lg:max-w-6xl mx-auto lg:overflow-y-auto lg:max-h-[500px]">
                     {Object.entries(cleaningTasks).map(([area, tasks]) => (
                         <div key={area} className="bg-white p-3 rounded mt-4 border border-2 border-gray-100">
                             <div className=" ">
@@ -250,7 +240,7 @@ export default function CleaningCalculator() {
 
                                         />
                                         <span className="w-4 h-4 border-2 border-gray-300 rounded-sm flex-shrink-0
-                   flex items-center justify-center peer-checked:bg-[var(--accent)] peer-checked:border-none transition-colors">
+flex items-center justify-center peer-checked:bg-[var(--accent)] peer-checked:border-none transition-colors">
                                             <svg
                                                 className="hidden w-3 h-3 text-white peer-checked:block"
                                                 fill="none"
