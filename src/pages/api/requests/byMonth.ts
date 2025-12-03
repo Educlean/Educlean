@@ -15,23 +15,37 @@ export default async function getRequestCountByMonth(
 
         console.log("Aggregating request count by month...");
 
-        // Agregación para contar el número de requests por mes y año
+        // Agregación robusta: convertir 'time' a fecha de forma segura
+        // y filtrar documentos cuyo 'time' no sea convertible.
         const requestCounts = await db
             .collection("requests")
             .aggregate([
                 {
-                    $group: {
-                        // Agrupar por el mes y el año de la fecha 'time'
-                        _id: {
-                            year: { $year: "$time" },
-                            month: { $month: "$time" },
+                    $addFields: {
+                        safeTime: {
+                            $convert: {
+                                input: "$time",
+                                to: "date",
+                                onError: null,
+                                onNull: null,
+                            },
                         },
-                        // Contar el número de documentos en cada grupo (mes/año)
+                    },
+                },
+                {
+                    // Excluir documentos donde la conversión falló
+                    $match: { safeTime: { $ne: null } },
+                },
+                {
+                    $group: {
+                        _id: {
+                            year: { $year: "$safeTime" },
+                            month: { $month: "$safeTime" },
+                        },
                         count: { $sum: 1 },
                     },
                 },
                 {
-                    // (Opcional) Ordenar los resultados cronológicamente
                     $sort: { "_id.year": 1, "_id.month": 1 },
                 },
             ])

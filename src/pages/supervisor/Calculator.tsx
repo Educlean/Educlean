@@ -1,8 +1,20 @@
 import React, { useState } from "react";
 import Banner from "@/components/Reusable/Banner";
-import PrimaryButton from "@/components/Reusable/PrimaryButton";
 
-const cleaningTasks = {
+interface TaskDef {
+    task: string;
+    minutes: number;
+}
+
+interface AreaState {
+    tasks: string[];
+    rooms: number;
+    freq: number;
+}
+
+type FormData = Partial<Record<string, AreaState>>;
+
+const cleaningTasks: Record<string, TaskDef[]> = {
     classrooms: [
         { task: "Desk wiping", minutes: 5 },
         { task: "Dusting", minutes: 4 },
@@ -101,18 +113,18 @@ const cleaningTasks = {
 
 
 export default function CleaningCalculator() {
-    const [formData, setFormData] = useState({});
+    const [formData, setFormData] = useState<FormData>({});
 
     const toggleTask = (area: string, task: string) => {
-        setFormData((prev) => {
-            const current = prev[area] || { tasks: [], rooms: 1, freq: 1 };
+        setFormData((prev: FormData) => {
+            const current: AreaState = prev[area] ?? { tasks: [], rooms: 1, freq: 1 };
             const exists = current.tasks.includes(task);
             return {
                 ...prev,
                 [area]: {
                     ...current,
                     tasks: exists
-                        ? current.tasks.filter((t: string) => t !== task)
+                        ? current.tasks.filter((t) => t !== task)
                         : [...current.tasks, task],
                 },
             };
@@ -120,21 +132,21 @@ export default function CleaningCalculator() {
     };
 
     const updateInput = (area: string, field: string, value: unknown) => {
-        setFormData((prev) => {
-            const current = prev[area] || { tasks: [], rooms: 1, freq: 1 };
+        setFormData((prev: FormData) => {
+            const current: AreaState = prev[area] ?? { tasks: [], rooms: 1, freq: 1 };
             return {
                 ...prev,
-                [area]: { ...current, [field]: value },
+                [area]: { ...current, [field]: value } as AreaState,
             };
         });
     };
 
     const toggleAllTasks = (area: string) => {
-        setFormData((prev) => {
-            const current = prev[area] || { tasks: [], rooms: 1, freq: 1 };
-            const allTasks = cleaningTasks[area].map((t) => t.task);
+        setFormData((prev: FormData) => {
+            const current: AreaState = prev[area] ?? { tasks: [], rooms: 1, freq: 1 };
+            const allTasks = (cleaningTasks[area] ?? []).map((t) => t.task);
 
-            const allSelected = allTasks.every((t) => current.tasks.includes(t));
+            const allSelected = allTasks.length > 0 && allTasks.every((t) => current.tasks.includes(t));
 
             return {
                 ...prev,
@@ -147,15 +159,16 @@ export default function CleaningCalculator() {
     };
 
 
-    const totals = Object.entries(formData).reduce(
-        (acc, [area, { tasks, rooms, freq }]) => {
+    const totals = Object.entries(formData as Record<string, AreaState>).reduce(
+        (acc, [area, areaState]) => {
+            const { tasks = [], rooms = 1, freq = 1 } = areaState ?? {};
             tasks.forEach((taskName) => {
-                const task = cleaningTasks[area].find((t) => t.task === taskName);
+                const task = (cleaningTasks[area] ?? []).find((t) => t.task === taskName);
                 if (task) {
-                    const perDay = task.minutes * rooms;
+                    const perDay = task.minutes * (rooms ?? 1);
                     acc.day += perDay;
-                    acc.week += perDay * freq;
-                    acc.month += perDay * freq * 4;
+                    acc.week += perDay * (freq ?? 1);
+                    acc.month += perDay * (freq ?? 1) * 4;
                 }
             });
             return acc;
@@ -178,10 +191,10 @@ export default function CleaningCalculator() {
                                         Quantity:{" "}
                                         <input
                                             type="number"
-                                            min="1"
-                                            value={formData[area]?.rooms ?? ""}
+                                            min={1}
+                                            value={formData[area]?.rooms ?? 1}
                                             onChange={(e) => {
-                                                updateInput(area, "rooms", e.target.value);
+                                                updateInput(area, "rooms", Number(e.target.value));
                                             }}
                                             className="w-16"
                                         />
@@ -191,9 +204,9 @@ export default function CleaningCalculator() {
                                         <input
                                             type="number"
                                             min="1"
-                                            value={formData[area]?.freq ?? ""}
+                                            value={formData[area]?.freq ?? 1}
                                             onChange={(e) => {
-                                                updateInput(area, "freq", e.target.value);
+                                                updateInput(area, "freq", Number(e.target.value));
                                             }}
                                             className="w-16"
                                         />

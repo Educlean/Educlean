@@ -107,7 +107,7 @@ export default function CreateRequest() {
             ))}
           </select>
         </div>
-        <div className="flex flex-col gap-2">
+        {/* <div className="flex flex-col gap-2">
           <label>Task priority</label>
           <select
             className="border h-10 px-3 rounded-lg border-gray-300"
@@ -127,7 +127,7 @@ export default function CreateRequest() {
               Low
             </option>
           </select>
-        </div>
+        </div> */}
         <div className="flex flex-col gap-2">
           <label>Description</label>
           <textarea

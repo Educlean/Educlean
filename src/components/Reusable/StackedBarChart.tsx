@@ -23,11 +23,17 @@ const monthNames: { [key: number]: string } = {
 
 // --- Data formatting ---
 
-const formatChartData = (apiData: MonthlyCountAPI[]): ChartData[] => {
+const formatChartData = (apiData: MonthlyCountAPI[] | unknown): ChartData[] => {
+  if (!Array.isArray(apiData)) return [];
+
   const requestMap = new Map<number, number>();
 
   apiData.forEach(item => {
-    requestMap.set(item._id.month, item.count);
+    // defensively check structure
+    if (!item || typeof item !== 'object' || !('_id' in item)) return;
+    const month = (item as MonthlyCountAPI)._id?.month;
+    const count = (item as MonthlyCountAPI).count ?? 0;
+    if (typeof month === 'number') requestMap.set(month, count);
   });
 
   const formattedData: ChartData[] = [];
@@ -52,9 +58,26 @@ export default function RequestChart() {
     const fetchData = async () => {
       try {
         const response = await fetch('/api/requests/byMonth');
-        if (!response.ok) throw new Error('Failed to fetch');
+        if (!response.ok) {
+          console.error('Fetch /api/requests/byMonth failed', response.status);
+          throw new Error('Failed to fetch monthly requests');
+        }
 
-        const apiResult: MonthlyCountAPI[] = await response.json();
+        const raw = await response.json();
+        // Log the raw response so we can see its shape during development.
+        // Remove or reduce logging in production.
+        console.debug('byMonth raw response:', raw);
+
+        // Normalize: API may return an array, or { data: [...] }, or { months: [...] }
+        let apiResult: MonthlyCountAPI[] = [];
+        if (Array.isArray(raw)) {
+          apiResult = raw as MonthlyCountAPI[];
+        } else if (raw && typeof raw === 'object') {
+          const obj = raw as Record<string, unknown>;
+          if (Array.isArray(obj.data)) apiResult = obj.data as MonthlyCountAPI[];
+          else if (Array.isArray(obj.months)) apiResult = obj.months as MonthlyCountAPI[];
+        }
+
         setChartData(formatChartData(apiResult));
       } catch (error) {
         console.error('Error loading data:', error);
