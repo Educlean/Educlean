@@ -3,10 +3,29 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --primary: #39B52D;
-  --secondary: #C5F3BF;
-  --accent: #092B08;
-  --light-gray: #F6F6F6;
+  --primary: #39b52d;
+  --secondary: #c5f3bf;
+  --accent: #092b08;
+  --light-gray: #f6f6f6;
 }
 
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+input[type="checkbox"]:checked + span svg {
+  display: block;
+}
+input[type="checkbox"] + span svg {
+  display: none;
+}
+input[type="checkbox"]:checked + span {
+  background-color: var(--primary);
+}

@@ -1,7 +1,13 @@
 import { useState } from "react";
 import PrimaryButton from "./PrimaryButton";
+import Modal from "./Modal";
 
-export default function ASchoolForm({ isActive }: { isActive: boolean }) {
+type ASchoolFormProps = {
+  isActive: boolean;
+  setSArray: React.Dispatch<React.SetStateAction<any[]>>;
+};
+
+export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
   const [warning, setWarning] = useState<string>("");
   const [formData, setFormData] = useState({
     name: "",
@@ -10,6 +16,7 @@ export default function ASchoolForm({ isActive }: { isActive: boolean }) {
     lat: 0,
     lng: 0,
   });
+  const [activeModal, setActiveModal] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -51,9 +58,14 @@ export default function ASchoolForm({ isActive }: { isActive: boolean }) {
         },
         body: JSON.stringify(finalData),
       });
+
       const data = await response.json();
       if (!response.ok) {
         setWarning(data.message || "Error adding school");
+      } else {
+        setFormData({ name: "", address: "", phone: "", lat: 0, lng: 0 });
+        setSArray((prev) => [...prev, finalData]);
+        setActiveModal(true);
       }
     } catch (error) {
       console.error("Error fetching geocode:", error);
@@ -103,7 +115,7 @@ export default function ASchoolForm({ isActive }: { isActive: boolean }) {
           <PrimaryButton label="Add school" type="submit" className="" />
         </form>
       </div>
-
+      {activeModal && <Modal text="New School Added Sucessfully" title="School Added" isOpen={true} onClose={() => setActiveModal(false)} />}
     </div>
   ) : null;
 }
