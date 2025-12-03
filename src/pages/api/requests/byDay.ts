@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../../lib/mongodb";
 
-function getVancouverMidnightRange(queryDate: string) {
+export function getVancouverMidnightRange(queryDate: string) {
   // Medianoche en Vancouver (ajusta a -07:00 o -08:00 según la época)
   const start = new Date(`${queryDate}T00:00:00-07:00`);
   const end = new Date(start);
@@ -16,6 +16,9 @@ export default async function getRequestByDay(
 ) {
   try {
     const db = await getDb();
+
+    console.log("Connected DB in requestByDay:", db.databaseName);
+    console.log("Count documents in requests:", await db.collection("requests").countDocuments());
 
     const queryDate = req.query.date as string;
     const { start, end } = getVancouverMidnightRange(queryDate);
@@ -34,3 +37,4 @@ export default async function getRequestByDay(
     res.status(500).json({ error: "Error fetching requests" });
   }
 }
+

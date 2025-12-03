@@ -9,7 +9,7 @@ import { SchoolCard } from "@/components/Reusable/SchoolCard";
 import CardSchool from "@/components/Reusable/SchoolCard";
 import SchoolForm from "@/components/Reusable/AddSchool";
 import search from "@/assets/icons/search.svg";
-import Modal from "@/components/Reusable/Modal";
+
 // import { FixedSizeList } from 'react-window';
 
 interface schoolProps {
@@ -62,7 +62,7 @@ export default function CreateSchool({ schools }: { schools: SchoolCard[] }) {
         {/* Add school form */}
         <div className="flex flex-col gap-5 w-full bg-gray-200 p-5 rounded-lg ">
           <div
-            className="flex flex-row justify-between gap-2 items-center cursor-pointer w-full border p-2 max-w-[200px] rounded"
+            className="flex flex-row justify-between gap-2 items-center cursor-pointer w-full cursor-pointer border p-2 max-w-[200px] rounded"
             onClick={() => setIsActive((prev) => !prev)}
           >
             <span>Add new school</span>
@@ -74,7 +74,7 @@ export default function CreateSchool({ schools }: { schools: SchoolCard[] }) {
             />
           </div>
           <div className="w-full">
-            {isActive ? <SchoolForm isActive={isActive} /> : null}
+            {isActive ? <SchoolForm isActive={isActive} setSArray={setSArray} /> : null}
           </div>
         </div>
       </div>
