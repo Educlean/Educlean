@@ -32,7 +32,7 @@ export default function Layout({ children }: LayoutProps) {
   // redirect unauthenticated users to login after initial load
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/login');
+      router.push('./login');
     }
   }, [loading, user, router]);
 
