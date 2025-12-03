@@ -25,7 +25,7 @@ function getFromCache<T>(key: string): T | null {
     return cached.data;
   }
   if (cached) {
-    cache.delete(key); // Remove expired cache
+    cache.delete(key); // Remove expired cache 
   }
   return null;
 }

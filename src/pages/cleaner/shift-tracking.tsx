@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { GeolocationService, Coordinates } from "../../../lib/geolocation";
 import { useUser } from "../../context/UserContext";
+import { getVancouverDateString } from "../../../lib/timezone";
 
 interface ShiftData {
   school: string;
@@ -99,12 +100,35 @@ const ShiftTracking = () => {
         setClockOutTime(new Date(data.clockOutTime));
       }
 
+      // Fetch schedule data for today
+      const scheduleResponse = await fetch(
+        `/api/schedules/cleaner?employeeID=${user.employeeID}`
+      );
+
+      let scheduledTime = "Not scheduled";
+      let room = "TBD";
+
+      if (scheduleResponse.ok) {
+        const scheduleData = await scheduleResponse.json();
+        const todaySchedule = scheduleData.find(
+          (schedule: any) => schedule.schoolId === schoolId
+        );
+
+        if (todaySchedule) {
+          // Format the scheduled time using the helper function for 24-hour time strings
+          const startTimeFormatted = formatTimeString(todaySchedule.startTime);
+          const endTimeFormatted = formatTimeString(todaySchedule.endTime);
+          scheduledTime = `${startTimeFormatted} - ${endTimeFormatted}`;
+          room = todaySchedule.room || "Main area";
+        }
+      }
+
       // Set shift data
       setShiftData({
         school: data.school.name,
         address: data.school.address,
-        scheduledTime: "3:30 PM", // This would come from schedule API
-        room: "Main lobby", // This would come from schedule API
+        scheduledTime: scheduledTime,
+        room: room,
         schoolId: data.school.id,
         coordinates: data.school.coordinates,
       });
@@ -272,6 +296,18 @@ const ShiftTracking = () => {
     });
   };
 
+  // Helper function to format 24-hour time string (e.g., "17:00") to 12-hour format
+  const formatTimeString = (timeString: string) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   const SuccessDialog = () => (
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
@@ -330,7 +366,9 @@ const ShiftTracking = () => {
             </div>
             <p className="text-green-700">
               clocked out at{" "}
-              <span className="font-semibold">{formatTime(currentTime)}</span>
+              <span className="font-semibold">
+                {clockOutTime ? formatTime(clockOutTime) : "Unknown"}
+              </span>
             </p>
             <p className="text-green-600 text-sm mt-1">
               Your shift is now complete
@@ -423,7 +461,9 @@ const ShiftTracking = () => {
             <span>🕓</span>
             <span className="text-lg font-semibold">
               {shiftStatus === "clocked_in"
-                ? formatTime(currentTime)
+                ? clockInTime
+                  ? formatTime(clockInTime)
+                  : "Unknown"
                 : shiftData?.scheduledTime || "Loading..."}
             </span>
           </div>

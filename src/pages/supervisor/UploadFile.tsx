@@ -1,16 +1,18 @@
-'use client';
-import React from 'react';
-import Banner from '../../components/Reusable/Banner';
-import uploadFile from '../../assets/icons/UploadFile.svg';
-import { useState } from 'react';
-import close from '../../assets/icons/close.svg';
-import GButton from '../../components/Reusable/GButton';
-import PrimaryButton from '../../components/Reusable/PrimaryButton';
-import Image from 'next/image';
+"use client";
+import React from "react";
+import Banner from "../../components/Reusable/Banner";
+import uploadFile from "../../assets/icons/UploadFile.svg";
+import { useState } from "react";
+import close from "../../assets/icons/close.svg";
+import GButton from "../../components/Reusable/GButton";
+import PrimaryButton from "../../components/Reusable/PrimaryButton";
+import Image from "next/image";
+import Modal from "@/components/Reusable/Modal";
 
 export default function UploadFile() {
   const [files, setFiles] = useState<File[]>([]);
   const [counter, setCounter] = useState<number>(0);
+  const [isActive, setIsActive] = useState<boolean>(false);
 
   const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
@@ -29,45 +31,44 @@ export default function UploadFile() {
     const selectedFiles: File[] = Array.from(filesList);
     setFiles((prev) => [...prev, ...selectedFiles]);
     setCounter((prev) => prev + selectedFiles.length);
-    event.target.value = '';
+    event.target.value = "";
   };
 
   const eliminateFile = (index: number) => {
-    console.log('Deleting file');
+    console.log("Deleting file");
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
     setCounter(counter - 1);
   };
 
   const handleUpload = async () => {
-  if (files.length === 0) {
-    alert("There is not file selected");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", files[0]); // Only uploads the first file since the API only accepts 1
-
-  try {
-    const res = await fetch("/api/schedules", {
-      method: "POST",
-      body: formData, 
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      alert(data.message || "Schedule uploaded sucessfully");
-      setFiles([]); // clean the files array
-      setCounter(0);
-    } else {
-      alert(data.error || "Error uploading file");
+    if (files.length === 0) {
+      alert("There is not file selected");
+      return;
     }
-  } catch (error) {
-    console.error(error);
-    alert("Error uploading file");
-  }
-};
 
+    const formData = new FormData();
+    formData.append("file", files[0]); // Only uploads the first file since the API only accepts 1
+
+    try {
+      const res = await fetch("/api/schedules", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setIsActive(true);
+        setFiles([]); // clean the files array
+        setCounter(0);
+      } else {
+        alert(data.error || "Error uploading file");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error uploading file");
+    }
+  };
 
   console.log(files);
 
@@ -85,7 +86,7 @@ export default function UploadFile() {
           </p>
           <p className="mb-3 lg:text-sm">Only Excel Files Allowed</p>
           <label
-            className="border-1 border-gray-400 border-dashed p-5 flex flex-col justify-center items-center rounded-md cursor-pointer lg:h-[20rem]"
+            className="border-1 border-gray-400 border-dashed p-5 flex flex-col justify-center items-center rounded-md cursor-pointer lg:h-[20rem] "
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           >
@@ -103,34 +104,45 @@ export default function UploadFile() {
               multiple
               onChange={handleFileSelect}
               className="hidden"
-              // accept=".xlx"
+            // accept=".xlx"
             />
           </label>
           {files.length > 0
             ? files.map((f, index) => (
-                <div
-                  key={index}
-                  className="m-4 bg-[var(--light-gray)] px-3 py-2 rounded-md flex justify-between md:mx-0 lg:bg-gray-200"
-                >
-                  <p>{f.name}</p>
-                  <Image
-                    src={close}
-                    alt="close-icon"
-                    onClick={() => eliminateFile(index)}
-                    className="cursor-pointer"
-                  ></Image>
-                </div>
-              ))
+              <div
+                key={index}
+                className="m-4 bg-[var(--light-gray)] px-3 py-2 rounded-md flex justify-between md:mx-0 lg:bg-gray-200"
+              >
+                <p>{f.name}</p>
+                <Image
+                  src={close}
+                  alt="close-icon"
+                  onClick={() => eliminateFile(index)}
+                  className="cursor-pointer"
+                ></Image>
+              </div>
+            ))
             : null}
-          <div className="flex justify-between mt-5 gap-2 md:mt-5 lg:w-1/2 lg:ml-auto ">
+          <div
+            className="flex mt-5 gap-2 md:mt-5 
+             lg:w-1/2 lg:ml-auto lg:justify-end"
+          >
             <GButton
               label="Cancel"
-              className="flex-1 lg:bg-white border border-gray-400"
+              className="flex-1 border border-gray-400"
             />
-            <PrimaryButton label="Save schedule" className="flex-1" onClick={handleUpload}/>
+            <PrimaryButton
+              label="Save schedule"
+              className="flex-1"
+              onClick={handleUpload}
+            />
           </div>
+
+
+
         </div>
       </div>
+      {isActive ? <Modal title="File Uploaded" text="Schedule uploaded sucessfully" isOpen={true} onClose={() => setIsActive(false)} /> : null}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "../../context/UserContext";
 import { Send } from "lucide-react";
-import { getVancouverDateString, isToday } from "../../../lib/timezone";
+import { isToday } from "../../../lib/timezone";
 
 interface Schedule {
   _id: string;

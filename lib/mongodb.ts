@@ -64,7 +64,11 @@ export async function getDb(): Promise<Db> {
     
     // Create indexes for better query performance
     await createIndexes(db);
-    
+    console.log("Connected DB:", db.databaseName);
+    console.log("MONGO URI:", process.env.MONGODB_URI);
+console.log("MONGO DB:", process.env.MONGODB_DB);
+
+
     console.log("✅ MongoDB connected successfully with connection pooling");
     return db;
   } catch (error) {
