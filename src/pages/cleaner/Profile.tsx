@@ -4,11 +4,21 @@ import React, { useState, useEffect } from 'react';
 import { UserProvider, useUser } from '@/context/UserContext';
 import Banner from '../../components/Reusable/Banner';
 import PrimaryButton from '../../components/Reusable/PrimaryButton';
+import type { Allergy } from '../../../lib/types';
 
 function CleanerFormContent() {
   const { user, setUser } = useUser();
 
-  const [formData, setFormData] = useState({
+  interface FormData {
+    name: string;
+    email: string;
+    mobile: string;
+    DOB: string;
+    RH: string;
+    allergies: Allergy[];
+  }
+
+  const [formData, setFormData] = useState<FormData>({
     name: user?.name || '',
     email: user?.email || '',
     mobile: user?.mobile || '',
@@ -18,7 +28,7 @@ function CleanerFormContent() {
         : (user.DOB as string)
       : '',
     RH: user?.RH || '',
-    allergies: user?.allergies || [],
+    allergies: (user?.allergies as Allergy[]) || [],
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -37,7 +47,7 @@ function CleanerFormContent() {
             : (user.DOB as string)
           : '',
         RH: user.RH || '',
-        allergies: user.allergies || [],
+        allergies: (user.allergies as Allergy[]) || [],
       });
     }
   }, [user]);
@@ -52,9 +62,10 @@ function CleanerFormContent() {
 
   const handleAddAllergy = () => {
     if (newAllergy.trim()) {
+      const newA: Allergy = { type: newAllergy.trim() };
       setFormData((prev) => ({
         ...prev,
-        allergies: [...prev.allergies, newAllergy.trim()],
+        allergies: [...prev.allergies, newA],
       }));
       setNewAllergy('');
     }
@@ -92,13 +103,13 @@ function CleanerFormContent() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.name,
-          mobile: formData.mobile,
-          email: formData.email,
-          DOB: formData.DOB,
-          RH: formData.RH,
-          allergies: formData.allergies,
-        }),
+            name: formData.name,
+            mobile: formData.mobile,
+            email: formData.email,
+            DOB: formData.DOB,
+            RH: formData.RH,
+            allergies: formData.allergies,
+          }),
       });
 
       const responseData = await response.json();
@@ -140,7 +151,7 @@ function CleanerFormContent() {
         : '',
       email: user?.email || '',
       RH: user?.RH || '',
-      allergies: user?.allergies || [],
+      allergies: (user?.allergies as Allergy[]) || [],
     });
     setIsEditing(false);
   };
@@ -265,10 +276,10 @@ function CleanerFormContent() {
             <ul className="space-y-2">
               {formData.allergies.map((allergy, index) => (
                 <li
-                  key={`${allergy}-${index}`}
+                  key={`${allergy.type}-${index}`}
                   className="flex items-center justify-between border border-gray-200 rounded-lg p-3"
                 >
-                  <span>{allergy}</span>
+                  <span>{allergy.type}</span>
                   {isEditing && (
                     <button
                       type="button"
