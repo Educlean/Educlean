@@ -15,6 +15,13 @@ export default function Layout({ children }: LayoutProps) {
   console.log(user?.role, 'USER')
   // Function to render the appropriate navigation based on user role
   const renderNavigation = () => {
+
+     useEffect(() => {
+    if (user === null) {
+      router.push("/login");
+    }
+  }, [user, router]);
+    
     if (!user) return null;
 
     switch (user.role?.toLowerCase()) {
