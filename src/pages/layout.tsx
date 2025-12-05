@@ -1,3 +1,5 @@
+"use client";
+
 import Header from "../components/Reusable/Header";
 import SnavBar from "../components/Reusable/SupervisorNav";
 import CleanerNav from "../components/Reusable/CleanerNav";
@@ -14,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
   const { user, loading } = useUser();
   const router = useRouter();
 
-  console.log(user?.role, 'USER')
+  // Debug logging removed to avoid noisy output in production
   // Function to render the appropriate navigation based on user role
   const renderNavigation = () => {
     if (!user) return null;
@@ -32,7 +34,8 @@ export default function Layout({ children }: LayoutProps) {
   // redirect unauthenticated users to login after initial load
   useEffect(() => {
     if (!loading && !user) {
-      router.push('./login');
+      // Use absolute path to avoid resolving relative to the current route
+      router.push('/login');
     }
   }, [loading, user, router]);
 
