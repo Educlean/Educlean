@@ -36,8 +36,12 @@ interface Employee {
   };
 }
 
-// --- Fetcher global para SWR ---
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+// --- Fetcher global para SWR (include credentials for same-origin cookies) ---
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'same-origin' }).then((res) => {
+    if (!res.ok) throw new Error(`Fetch error ${res.status}`);
+    return res.json();
+  });
 
 // --- Dashboard Content ---
 function SDashboardContent() {
@@ -55,19 +59,19 @@ function SDashboardContent() {
   // SWR hooks
   const { data: requests = [], isLoading: loadingRequests } = useSWR<CardProps[]>(
     // only fetch when we have the client-side date to avoid hydration mismatches
-    vancouverDate ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/requests/byDay?date=${vancouverDate}` : null,
+    vancouverDate ? `/api/requests/byDay?date=${vancouverDate}` : null,
     fetcher
   );
   console.log("Requests:", requests)
 
   const { data: schools = [], isLoading: loadingSchools } = useSWR<School[]>(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/schools`,
+    `/api/schools`,
     fetcher
   );
   console.log("Schools:", schools);
 
   const { data: employees = [], isLoading: loadingEmployees } = useSWR<Employee[]>(
-    vancouverDate ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/schedules/byDay?date=${vancouverDate}` : null,
+    vancouverDate ? `/api/schedules/byDay?date=${vancouverDate}` : null,
     fetcher
   );
 
