@@ -8,11 +8,12 @@ import EmployeeCard from "../../components/Reusable/EmployeeCard";
 import Image from "next/image";
 import Link from "next/link";
 import locationIcon from "../../assets/icons/location.svg";
-import { UserProvider, useUser } from "@/context/UserContext";
+import { useUser } from "@/context/UserContext";
 import StackedBarChart from "../../components/Reusable/StackedBarChart"
 // import { useMemo } from "react";
 import useSWR from "swr";
 import { format } from "date-fns-tz";
+import { useEffect, useState } from "react";
 
 
 
@@ -35,31 +36,42 @@ interface Employee {
   };
 }
 
-const vancouverDate = format(new Date(), "yyyy-MM-dd", { timeZone: "America/Vancouver" });
-// --- Fetcher global para SWR ---
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+// --- Fetcher global para SWR (include credentials for same-origin cookies) ---
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'same-origin' }).then((res) => {
+    if (!res.ok) throw new Error(`Fetch error ${res.status}`);
+    return res.json();
+  });
 
 // --- Dashboard Content ---
 function SDashboardContent() {
   // const today = new Date().toISOString().split("T")[0];
   const { user } = useUser();
   const displayName = user?.name || "";
+  const [vancouverDate, setVancouverDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    // compute the date on the client only to avoid SSR/client mismatch
+    const d = format(new Date(), "yyyy-MM-dd", { timeZone: "America/Vancouver" });
+    setVancouverDate(d);
+  }, []);
 
   // SWR hooks
   const { data: requests = [], isLoading: loadingRequests } = useSWR<CardProps[]>(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/requests/byDay?date=${vancouverDate}`,
+    // only fetch when we have the client-side date to avoid hydration mismatches
+    vancouverDate ? `/api/requests/byDay?date=${vancouverDate}` : null,
     fetcher
   );
   console.log("Requests:", requests)
 
   const { data: schools = [], isLoading: loadingSchools } = useSWR<School[]>(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/schools`,
+    `/api/schools`,
     fetcher
   );
   console.log("Schools:", schools);
 
   const { data: employees = [], isLoading: loadingEmployees } = useSWR<Employee[]>(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/schedules/byDay?date=${vancouverDate}`,
+    vancouverDate ? `/api/schedules/byDay?date=${vancouverDate}` : null,
     fetcher
   );
 
@@ -156,11 +168,7 @@ function SDashboardContent() {
   );
 }
 
-// --- Wrapper con UserProvider ---
+// --- Page export (no nested provider: `_app.tsx` already wraps pages with `UserProvider`) ---
 export default function SDashboard() {
-  return (
-    <UserProvider>
-      <SDashboardContent />
-    </UserProvider>
-  );
+  return <SDashboardContent />;
 }

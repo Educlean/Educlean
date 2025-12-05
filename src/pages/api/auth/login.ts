@@ -4,11 +4,12 @@ import bcrypt from "bcryptjs";
 import { Account } from "../../../../lib/types";
 import * as jwt from "jsonwebtoken";
 import { serialize } from "cookie";
+import allowCors from "../../../lib/allowCors";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     if (req.method !== "POST") return res.status(405).end();
 
@@ -51,4 +52,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(500).json({ message: "Unknown server error" });
     }
 }
+
+export default allowCors(handler);
 

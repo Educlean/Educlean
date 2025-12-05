@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../../lib/mongodb";
+import allowCors from '../../../lib/allowCors';
 // import { findMany } from "../../../../lib/helpers";
 
 
@@ -13,7 +14,7 @@ function getVancouverMidnightRange(queryDate: string) {
     return { start, end };
 }
 
-export default async function handler(
+async function handler(
     req: NextApiRequest,
     res: NextApiResponse,
 ) {
@@ -76,3 +77,4 @@ else if (req.method === "GET") {
 }
 
 }
+export default allowCors(handler);

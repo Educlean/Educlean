@@ -2,12 +2,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import jwt from "jsonwebtoken";
 import { findOne } from "../../../../lib/helpers";
 import { ObjectId } from "mongodb";
+import allowCors from "../../../lib/allowCors";
 // import types
 // import { Account, User } from "../../../../lib/types";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -48,3 +49,5 @@ export default async function handler(
     res.status(401).json({ message: "Invalid token" });
   }
 }
+
+export default allowCors(handler);

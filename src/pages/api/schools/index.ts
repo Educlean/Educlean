@@ -7,10 +7,11 @@ import {
 } from "../../../../lib/helpers";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { School } from "../../../../lib/types";
+import allowCors from '../../../lib/allowCors';
 
 
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
@@ -26,7 +27,6 @@ export default async function handler(
         .status(409)
         .json({ message: "School with this address already exists" });
     }
-
     const { name, address, phone, lat, lng } = req.body;
     if (!name || !address || !phone || !lat || !lng) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -85,3 +85,5 @@ export default async function handler(
     return res.status(200).json({ message: "School updated successfully" });
   }
 }
+
+export default allowCors(handler);

@@ -25,6 +25,8 @@ const Login: NextPageWithLayout = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        // include credentials so the Set-Cookie from the server is accepted
+        credentials: 'include',
         body: JSON.stringify({ employeeID, password }),
       });
 

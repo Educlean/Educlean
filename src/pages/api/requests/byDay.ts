@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../../lib/mongodb";
-
+import allowCors from '../../../lib/allowCors';
 export function getVancouverMidnightRange(queryDate: string) {
   // Medianoche en Vancouver (ajusta a -07:00 o -08:00 según la época)
   const start = new Date(`${queryDate}T00:00:00-07:00`);
@@ -10,7 +10,7 @@ export function getVancouverMidnightRange(queryDate: string) {
   return { start, end };
 }
 
-export default async function getRequestByDay(
+async function getRequestByDay(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -37,4 +37,7 @@ export default async function getRequestByDay(
     res.status(500).json({ error: "Error fetching requests" });
   }
 }
+
+
+export default allowCors(getRequestByDay);
 
