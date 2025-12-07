@@ -2,7 +2,7 @@ import { useState } from "react";
 import PrimaryButton from "./PrimaryButton";
 import Modal from "./Modal";
 // IMPORTAR SchoolDocument desde el path correcto
-import type { SchoolDocument } from "../../../lib/types"; // <-- ¡Ruta confirmada!
+import { SchoolDocument } from "../../../lib/types";
 
 // Definimos la interfaz para la estructura de datos que se guarda/manipula.
 interface SchoolData {
