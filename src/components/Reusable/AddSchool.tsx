@@ -1,12 +1,12 @@
 import { useState } from "react";
 import PrimaryButton from "./PrimaryButton";
 import Modal from "./Modal";
-// IMPORTAR SchoolDocument desde donde sea que esté definido
-import type { SchoolDocument } from "../../../lib/types"; // <-- ¡Asegura esta ruta!
+// IMPORTAR SchoolDocument desde el path correcto
+import type { SchoolDocument } from "../../../lib/types"; // <-- ¡Ruta confirmada!
 
 // Definimos la interfaz para la estructura de datos que se guarda/manipula.
 interface SchoolData {
-  // 1. AÑADIR _id como opcional para compatibilidad con el tipo SchoolDocument del padre.
+  // CORRECCIÓN 1: Hacemos _id opcional para compatibilidad local.
   _id?: string; 
   name: string;
   address: string;
@@ -18,14 +18,14 @@ interface SchoolData {
 // Definimos la interfaz para las props del componente
 type ASchoolFormProps = {
   isActive: boolean;
-  // 2. CORREGIR el tipo de la prop setSArray para usar el tipo del padre.
+  // CORRECCIÓN 2: Usamos el tipo SchoolDocument[] para el setter,
+  // ya que este es el tipo que el componente padre (School.tsx) espera.
   setSArray: React.Dispatch<React.SetStateAction<SchoolDocument[]>>;
 };
 
 export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
   const [warning, setWarning] = useState<string>("");
   const [formData, setFormData] = useState<SchoolData>({
-    // ... (el estado inicial es compatible)
     name: "",
     address: "",
     phone: "",
@@ -38,8 +38,8 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Función para obtener lat lng de la dirección usando la API de Nominatim
   const fetchLatLng = async (address: string) => {
+    // ... (función fetchLatLng permanece igual)
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`,
     );
@@ -64,7 +64,7 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
     
     try {
       const geoData = await fetchLatLng(formData.address);
-      const finalData: SchoolData = { ...formData, ...geoData }; // finalData ahora tiene _id?: string
+      const finalData: SchoolData = { ...formData, ...geoData };
 
       console.log("Data to save in DB:", finalData);
       const response = await fetch("/api/schools", {
@@ -75,7 +75,7 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
         body: JSON.stringify(finalData),
       });
 
-      // Asegúrate de que la respuesta de la API incluya el _id generado
+      // Aseguramos que la respuesta devuelva el _id
       const data: { message?: string, _id?: string } = await response.json(); 
 
       if (!response.ok) {
@@ -83,12 +83,15 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
       } else {
         setFormData({ name: "", address: "", phone: "", lat: 0, lng: 0 });
         
-        // 3. CAST EXPLÍCITO para compatibilidad: 
-        // Aunque finalData tiene _id?, lo tratamos como SchoolDocument.
-        const schoolWithId = { ...finalData, _id: data._id || 'temp-id' }; // Aseguramos el _id si viene de la API
+        // Creamos el objeto final asegurando que tenga _id (aunque sea temporal)
+        const schoolWithId: SchoolDocument = { 
+            ...finalData, 
+            _id: data._id || 'temp-' + Date.now().toString(), // CORRECCIÓN 3: Aseguramos la existencia de _id
+            // TypeScript ahora sabe que este objeto es un SchoolDocument
+        };
         
-        // El cast final permite añadir SchoolData a SchoolDocument[]
-        setSArray((prev) => [...prev, schoolWithId as SchoolDocument]); 
+        // El cast final se puede simplificar si schoolWithId ya es SchoolDocument
+        setSArray((prev) => [...prev, schoolWithId]); 
         setActiveModal(true);
       }
     } catch (error) {
@@ -100,6 +103,7 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
   
   return isActive ? (
     <div className="flex flex-col gap-5 w-full max-w-5xl rounded-lg mx-auto bg-white p-10">
+      {/* ... (el resto del JSX) ... */}
       <div className="bg-red-500 flex-1 w-full"></div>
       <div className="flex-1 w-full">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
