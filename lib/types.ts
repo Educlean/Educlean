@@ -38,6 +38,17 @@ export interface School {
   address: string;
   phone: string;
 }
+// Interfaz que representa una escuela en la base de datos
+// Define este tipo en un archivo común, por ejemplo, lib/types.ts
+export interface SchoolDocument {
+  _id: string; // El ID de MongoDB
+  name: string;
+  address: string;
+  phone: string;
+  // Si los usas, incluye lat y lng
+  lat?: number;
+  lng?: number;
+}
 
 // ---------------- Requests ----------------
 export type RequestStatus = "not started" | "started" | "finished";
