@@ -2,15 +2,14 @@ import { useState } from "react";
 import location from "../../assets/icons/location.svg";
 import phoneIcon from "../../assets/icons/phone.svg";
 import Image from "next/image";
+import { SchoolDocument } from "../../../lib/types";
 // import { School } from "../../lib/types";
 
-export interface SchoolCard {
-  _id: string;
-  name: string;
-  address: string;
-  phone: string;
-  sArray: React.Dispatch<React.SetStateAction<SchoolCard[]>>;
-  setSchoolList: React.Dispatch<React.SetStateAction<SchoolCard[]>>;
+
+export interface SchoolCardProps extends SchoolDocument {
+  // Las funciones de setter ahora deben manejar el tipo SchoolDocument[]
+  sArray: React.Dispatch<React.SetStateAction<SchoolDocument[]>>;
+  setSchoolList: React.Dispatch<React.SetStateAction<SchoolDocument[]>>;
 }
 
 export default function SchoolCard({
@@ -20,7 +19,7 @@ export default function SchoolCard({
   _id,
   sArray,
   setSchoolList,
-}: SchoolCard) {
+}: SchoolCardProps) {
   const [editable, setEditable] = useState(false);
   const [formData, setFormData] = useState({
     name,
@@ -64,10 +63,10 @@ export default function SchoolCard({
       if (response.ok) {
         console.log("School deleted successfully");
         // Optionally, you can add logic to remove the card from the UI
-        sArray((prev: SchoolCard[]) =>
+        sArray((prev: SchoolDocument[]) =>
           prev.filter((school) => school._id !== id),
         );
-        setSchoolList((prev: SchoolCard[]) =>
+        setSchoolList((prev: SchoolDocument[]) =>
           prev.filter((school) => school._id !== id),
         );
       } else {
