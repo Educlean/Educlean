@@ -1,12 +1,21 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../../lib/mongodb";
-import { ObjectId } from "mongodb";
+import { ObjectId, Document } from "mongodb"; // Importar Document de MongoDB
 import { getVancouverDateString, getVancouverDayBounds } from "../../../../lib/timezone";
 
 interface RequestUpdateBody {
   requestId: string;
   status: "todo" | "in_progress" | "done";
   employeeID: string;
+}
+
+// Interfaz para el objeto de actualización de la solicitud, combinando campos comunes y opcionales.
+interface RequestUpdateData extends Document {
+    status: "todo" | "in_progress" | "done";
+    updatedAt: Date;
+    startedAt?: Date;
+    completedAt?: Date;
+    assignedTo?: string;
 }
 
 export default async function handler(
@@ -17,47 +26,56 @@ export default async function handler(
 
   if (req.method === "GET") {
     try {
+      // Usamos NextApiRequest con tipado más estricto si es necesario, pero req.query es Record<string, string | string[]> por defecto.
       const { employeeID, schoolId } = req.query;
 
       if (!employeeID) {
         return res.status(400).json({ error: "employeeID is required" });
       }
 
-      const filter: any = {};
+      // Reemplazamos 'any' por 'Document' para el filtro de MongoDB
+      const filter: Document = {};
 
-      // If schoolId is provided, filter by school
+      // Si schoolId es proporcionado, filtrar por escuela
       if (schoolId) {
+        // Aseguramos que schoolId es una string antes de crear ObjectId
         filter.schoolId = new ObjectId(schoolId as string);
       } else {
-        // If no schoolId provided, get all schools where this employee works
-        // First, get today's schedules for this employee in Vancouver timezone
+        // Si no se proporciona schoolId, obtener todas las escuelas donde este empleado trabaja
+        // Primero, obtener los horarios de hoy para este empleado en la zona horaria de Vancouver
         const today = getVancouverDateString();
         const { startOfDay } = getVancouverDayBounds(today);
+        
+        // Asumiendo que 'schedules' tiene un esquema donde schoolId es un ObjectId
         const schedules = await db
-          .collection("schedules")
+          .collection<Document>("schedules") // Tipamos la colección si es necesario
           .find({
             employeeID: employeeID as string,
             date: { $gte: startOfDay },
           })
           .toArray();
 
+        // Mapeamos los resultados. Asumimos que schoolId existe y es un ObjectId.
         const schoolIds = schedules.map((schedule) =>
-          schedule.schoolId.toString()
+          (schedule.schoolId as ObjectId).toString()
         );
 
         if (schoolIds.length > 0) {
-          filter.schoolId = { $in: schoolIds };
+          // Filtramos las solicitudes por los ObjectIds
+          filter.schoolId = { $in: schoolIds.map(id => new ObjectId(id)) };
         } else {
-          // No schedules found, return empty array
+          // No se encontraron horarios, devolver array vacío
           return res.status(200).json([]);
         }
       }
 
-      // Get requests with school information using optimized aggregation
+      // Obtener solicitudes con información de la escuela usando agregación optimizada
+      // Importamos la función getRequestsWithSchoolInfo (debe devolver Promise<Document[]>)
       const { getRequestsWithSchoolInfo } = await import("../../../../lib/helpers");
-      const requestsWithSchoolInfo = await getRequestsWithSchoolInfo(
+      
+      const requestsWithSchoolInfo: Document[] = await getRequestsWithSchoolInfo(
         filter,
-        { useCache: true, cacheTtl: 1 * 60 * 1000 } // Cache for 1 minute
+        { useCache: true, cacheTtl: 1 * 60 * 1000 } // Cache por 1 minuto
       );
 
       return res.status(200).json(requestsWithSchoolInfo);
@@ -67,6 +85,7 @@ export default async function handler(
     }
   } else if (req.method === "PUT") {
     try {
+      // Desestructuramos el cuerpo con la interfaz tipada
       const { requestId, status, employeeID }: RequestUpdateBody = req.body;
 
       if (!requestId || !status || !employeeID) {
@@ -77,22 +96,22 @@ export default async function handler(
         return res.status(400).json({ error: "Invalid status" });
       }
 
-      // Import helper functions
+      // Importar funciones helper
       const { findById, updateOne } = await import("../../../../lib/helpers");
 
-      // Check if request exists
-      const request = await findById("requests", requestId);
+      // Verificar si la solicitud existe. findById devuelve WithId<Document> | null.
+      const request = await findById<Document>("requests", requestId);
       if (!request) {
         return res.status(404).json({ error: "Request not found" });
       }
 
-      // Prepare update data
-      const updateData: any = {
+      // Preparamos los datos de actualización con la interfaz tipada
+      const updateData: Partial<RequestUpdateData> = {
         status,
         updatedAt: new Date(),
       };
 
-      // Add timestamps based on status
+      // Agregar marcas de tiempo según el estado
       if (status === "in_progress" && request.status === "todo") {
         updateData.startedAt = new Date();
         updateData.assignedTo = employeeID;
@@ -100,18 +119,19 @@ export default async function handler(
         updateData.completedAt = new Date();
       }
 
-      // Update the request using optimized helper
-      const result = await updateOne("requests", requestId, updateData);
+      // Actualizar la solicitud usando el helper optimizado (updateOne requiere Partial<T>)
+      const result = await updateOne<Document>("requests", requestId, updateData);
 
       if (result.matchedCount === 0) {
         return res.status(404).json({ error: "Request not found" });
       }
 
-      // Get updated request with school info using aggregation
+      // Obtener la solicitud actualizada con información de la escuela usando agregación
       const { getRequestsWithSchoolInfo } = await import("../../../../lib/helpers");
-      const [updatedRequestWithSchool] = await getRequestsWithSchoolInfo(
+      
+      const [updatedRequestWithSchool]: Document[] = await getRequestsWithSchoolInfo(
         { _id: new ObjectId(requestId) },
-        { useCache: false } // Don't cache single request lookups
+        { useCache: false } // No cachear búsquedas de una sola solicitud
       );
 
       return res.status(200).json({

@@ -5,7 +5,8 @@ import Banner from "@/components/Reusable/Banner";
 import { useState } from "react";
 import Image from "next/image";
 import ArrowDown from "@/assets/icons/ArrowDown.svg";
-import { SchoolCard } from "@/components/Reusable/SchoolCard";
+// import { SchoolCard } from "@/components/Reusable/SchoolCard";
+import { SchoolDocument } from "../../../lib/types";
 import CardSchool from "@/components/Reusable/SchoolCard";
 import SchoolForm from "@/components/Reusable/AddSchool";
 import search from "@/assets/icons/search.svg";
@@ -13,13 +14,13 @@ import search from "@/assets/icons/search.svg";
 // import { FixedSizeList } from 'react-window';
 
 interface schoolProps {
-  schools: SchoolCard[];
+  schools: SchoolDocument[];
 }
 
-export default function CreateSchool({ schools }: { schools: SchoolCard[] }) {
+export default function CreateSchool({ schools }: { schools: SchoolDocument[] }) {
   const [isActive, setIsActive] = useState<boolean>(false);
-  const [sArray, setSArray] = useState<SchoolCard[]>(schools);
-  const [schoolList, setSchoolList] = useState<SchoolCard[]>(schools);
+  const [sArray, setSArray] = useState<SchoolDocument[]>(schools);
+  const [schoolList, setSchoolList] = useState<SchoolDocument[]>(schools);
 
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,7 +96,7 @@ export const getServerSideProps: GetServerSideProps<schoolProps> = async (contex
     },
   );
 
-  const data: SchoolCard[] = await response.json();
+  const data: SchoolDocument[] = await response.json();
   console.log("SSR data:", data);
 
   return {

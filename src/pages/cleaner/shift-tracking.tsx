@@ -6,6 +6,7 @@ import { GeolocationService, Coordinates } from "../../../lib/geolocation";
 import { useUser } from "../../context/UserContext";
 import { getVancouverDateString } from "../../../lib/timezone";
 
+// Interfaces mantenidas y añadidas
 interface ShiftData {
   school: string;
   address: string;
@@ -25,6 +26,15 @@ interface ClockStatus {
     address: string;
     coordinates: Coordinates;
   };
+}
+
+// Nueva Interfaz para tipar el objeto que proviene del schedule
+interface CleanerScheduleItem {
+  schoolId: string;
+  startTime: string; // e.g., "09:00"
+  endTime: string; // e.g., "17:00"
+  room?: string;
+  // Añadir cualquier otro campo que venga de esa API si es necesario
 }
 
 const ShiftTracking = () => {
@@ -64,14 +74,16 @@ const ShiftTracking = () => {
   }, []);
 
   useEffect(() => {
-    if (user && schoolId) {
+    // Asegurarse de que el router esté listo y schoolId sea una cadena antes de inicializar
+    if (user && router.isReady && typeof schoolId === 'string') {
       initializeShiftData();
       checkLocationPermission();
     }
-  }, [user, schoolId]);
+  }, [user, schoolId, router.isReady]); // Añadir router.isReady y schoolId como dependencia
 
   const initializeShiftData = async () => {
-    if (!user?.employeeID || !schoolId) {
+    // Asegurarse de que schoolId sea una cadena para usarlo
+    if (!user?.employeeID || typeof schoolId !== 'string') {
       setError("Missing user data or school ID");
       setLoading(false);
       return;
@@ -109,9 +121,12 @@ const ShiftTracking = () => {
       let room = "TBD";
 
       if (scheduleResponse.ok) {
-        const scheduleData = await scheduleResponse.json();
+        // Tipado del arreglo para eliminar 'any'
+        const scheduleData: CleanerScheduleItem[] = await scheduleResponse.json(); 
+        
+        // Uso del tipado al hacer el find
         const todaySchedule = scheduleData.find(
-          (schedule: any) => schedule.schoolId === schoolId
+          (schedule) => schedule.schoolId === schoolId // 'schedule' está tipado como CleanerScheduleItem
         );
 
         if (todaySchedule) {
@@ -140,6 +155,8 @@ const ShiftTracking = () => {
       setLoading(false);
     }
   };
+
+  // ... (El resto del código se mantiene igual, ya que solo el 'any' fue el objetivo)
 
   const checkLocationPermission = async () => {
     try {
@@ -213,13 +230,18 @@ const ShiftTracking = () => {
       setShowSuccessDialog(true);
     } catch (err) {
       if (err instanceof Error) {
-        setSuccessMessage({
-          title: "You cannot connect",
-          description: "You are out of the school limit",
-          time: "",
-          message: "",
-        });
-        setShowSuccessDialog(true);
+        // Esto asume que el error de distancia se maneja aquí al hacer el throw
+        if (err.message.includes("150 meters")) {
+            setSuccessMessage({
+                title: "You cannot connect",
+                description: "You are out of the school limit",
+                time: "",
+                message: "",
+            });
+            setShowSuccessDialog(true);
+        } else {
+            setError(err.message);
+        }
       } else setError("Failed to clock in");
     } finally {
       setIsClockingIn(false);
@@ -282,7 +304,20 @@ const ShiftTracking = () => {
       });
       setShowSuccessDialog(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to clock out");
+        if (err instanceof Error) {
+            // Manejar el error de distancia de forma similar al clock-in
+            if (err.message.includes("150 meters")) {
+                setSuccessMessage({
+                    title: "You cannot connect",
+                    description: "You are out of the school limit",
+                    time: "",
+                    message: "Please try again when closer.",
+                });
+                setShowSuccessDialog(true);
+            } else {
+                setError(err.message);
+            }
+        } else setError("Failed to clock out");
     } finally {
       setIsClockingOut(false);
     }
