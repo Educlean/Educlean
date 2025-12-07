@@ -9,8 +9,14 @@ export function allowCors(handler: NextApiHandler) {
     const origin = req.headers.origin as string | undefined;
 
     if (allowed.length === 0) {
-      // no policy set — allow all origins (no credentials)
-      res.setHeader('Access-Control-Allow-Origin', '*');
+      // No policy set. If an Origin header is present (likely running frontend from a different host/port),
+      // allow that origin and enable credentials for development convenience. Otherwise fall back to allow-all.
+      if (origin) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      } else {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+      }
     } else if (origin && allowed.includes(origin)) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');

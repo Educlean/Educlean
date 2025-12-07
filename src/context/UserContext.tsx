@@ -1,12 +1,17 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { User } from "../../lib/types";
-
 
 interface UserContextType {
   user: User | null;
-  setUser: (user: User | null) => void;
+  setUser: (u: User | null) => void;
   loading: boolean;
 }
 
@@ -14,29 +19,65 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
+  // reusable fetch that populates the full user from the server
+  const fetchMe = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/me", { credentials: "include" });
+      if (res.ok) {
+        const data: User = await res.json();
+        setUser(data);
+      } else {
+        setUser(null);
+      }
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUser = async () => {
+    // On mount try to populate user from server (cookie is httpOnly)
+    fetchMe();
+  }, []);
+
+  // Listen for an immediate client-side login event so the
+  // context can be updated instantly (the server will still
+  // validate the cookie on the next /api/auth/me call).
+  useEffect(() => {
+    const onLogin = (ev: Event) => {
       try {
-        const res = await fetch("/api/auth/me", { credentials: 'include' }); // User logged endpoint (send cookies)
-        if (res.ok) {
-          const data: User = await res.json();
-          console.log("Fetched user:", data);
-          setUser(data);
-        } else {
-          // not authenticated or other error; ensure user stays null
-          setUser(null);
-        }
-      } catch (err) {
-        console.error("Failed to fetch user", err);
-        setUser(null);
-      } finally {
-        setLoading(false);
+        const detail = (ev as CustomEvent).detail;
+        if (!detail) return;
+
+        // set a minimal user so pages depending on role/accountId
+        // can react immediately (redirects). Then request the
+        // full user data from the server and replace the minimal
+        // user with the real one.
+        const minimalUser: User = {
+          role: detail.role || "",
+          accountId: detail.accountId || "",
+          name: "",
+          email: "",
+          mobile: "",
+          DOB: null,
+          allergies: [],
+          RH: undefined,
+          employeeID: "",
+        };
+
+        setUser(minimalUser);
+        // fetch the complete user record from the server
+        fetchMe();
+      } catch {
+        // noop
       }
     };
 
-    fetchUser();
+    window.addEventListener("edu:login", onLogin as EventListener);
+    return () => window.removeEventListener("edu:login", onLogin as EventListener);
   }, []);
 
   return (
@@ -46,11 +87,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Hook to use the context
 export const useUser = () => {
-  const context = useContext(UserContext);
-  if (!context) {
-    throw new Error("useUser must be used within a UserProvider");
-  }
-  return context;
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error("useUser must be used inside UserProvider");
+  return ctx;
 };

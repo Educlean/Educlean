@@ -25,8 +25,7 @@ const Login: NextPageWithLayout = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        // include credentials so the Set-Cookie from the server is accepted
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({ employeeID, password }),
       });
 
@@ -39,12 +38,36 @@ const Login: NextPageWithLayout = () => {
       }
 
       console.log("Login Successful:", data);
-      if (data.role === "Supervisor") {
-        router.push("/supervisor/Dashboard");
-        return;
-      } else {
-        router.push("/cleaner/DashboardCleaner");
-        return;
+
+      // Marca que acaba de iniciar sesión
+      try {
+        sessionStorage.setItem("justLoggedIn", "1");
+      } catch {}
+
+      // 🔥 IMPORTANTE: ENVIAR DATOS MINIMOS AL CONTEXTO
+      try {
+        window.dispatchEvent(
+          new CustomEvent("edu:login", {
+            detail: {
+              accountId: data.accountId,
+              role: data.role,
+            },
+          })
+        );
+      } catch {}
+
+      // Redirección según el rol
+      const dest =
+        data.role === "Supervisor"
+          ? "/supervisor/Dashboard"
+          : "/cleaner/DashboardCleaner";
+
+      try {
+        router.push(dest).catch(() => {
+          window.location.href = dest;
+        });
+      } catch {
+        window.location.href = dest;
       }
     } catch (err) {
       console.error("Error:", err);
@@ -53,12 +76,12 @@ const Login: NextPageWithLayout = () => {
 
   return (
     <>
-      {/* Content */}
       <div className="min-h-screen flex flex-col justify-between p-10 md:max-w-lg md:m-auto lg:max-w-xl lg:mx-auto">
         <h1 className="font-bold text-center text-3xl text-[var(--accent)]">
           WELCOME TO EDUCLEAN
         </h1>
         <Image src={signIn} alt="Welcome_Img" className="h-80" />
+
         <div>
           <form className="flex flex-col p-4 gap-5" onSubmit={onSubmit}>
             {/* User */}
@@ -91,7 +114,6 @@ const Login: NextPageWithLayout = () => {
           </form>
         </div>
 
-        {/* Footer */}
         <p className="text-center font-thin">
           {`Educlean © ${fullYear} - All rights reserved`}
         </p>
@@ -101,5 +123,4 @@ const Login: NextPageWithLayout = () => {
 };
 
 Login.noLayout = true;
-
 export default Login;
