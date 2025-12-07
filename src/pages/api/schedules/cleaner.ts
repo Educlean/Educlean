@@ -3,6 +3,15 @@ import { getDb } from "../../../../lib/mongodb";
 import { ObjectId } from "mongodb";
 import { getVancouverWeekBounds, getVancouverDayBounds } from "../../../../lib/timezone";
 
+// Tipo exacto del filtro de fecha usado en tus helpers
+type DateFilter = {
+  date: {
+    $gte: Date;
+    $lt?: Date;
+    $lte?: Date;
+  };
+};
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const db = await getDb();
 
@@ -14,47 +23,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: "employeeID is required" });
       }
 
-      let dateFilter: any = {};
+      let dateFilter: DateFilter;
 
       if (date) {
         // Get schedules for a specific date in Vancouver timezone
         const { startOfDay, endOfDay } = getVancouverDayBounds(date as string);
-        
+
         dateFilter = {
           date: {
             $gte: startOfDay,
-            $lt: endOfDay
-          }
+            $lt: endOfDay,
+          },
         };
       } else if (startDate && endDate) {
         // Get schedules for a date range in Vancouver timezone
         const { startOfDay: rangeStart } = getVancouverDayBounds(startDate as string);
         const { endOfDay: rangeEnd } = getVancouverDayBounds(endDate as string);
-        
+
         dateFilter = {
           date: {
             $gte: rangeStart,
-            $lte: rangeEnd
-          }
+            $lte: rangeEnd,
+          },
         };
       } else {
         // Default to current week in Vancouver timezone
         const { startOfWeek, endOfWeek } = getVancouverWeekBounds();
-        
+
         dateFilter = {
           date: {
             $gte: startOfWeek,
-            $lte: endOfWeek
-          }
+            $lte: endOfWeek,
+          },
         };
       }
 
-      // Get schedules with school information using optimized aggregation
+      // Get schedules with school information
       const { getSchedulesWithSchoolInfo } = await import("../../../../lib/helpers");
+
       const schedulesWithSchoolInfo = await getSchedulesWithSchoolInfo(
         employeeID as string,
         dateFilter,
-        { useCache: true, cacheTtl: 2 * 60 * 1000 } // Cache for 2 minutes
+        { useCache: true, cacheTtl: 2 * 60 * 1000 }
       );
 
       return res.status(200).json(schedulesWithSchoolInfo);
