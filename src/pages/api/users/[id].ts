@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { ObjectId } from 'mongodb';
 import { findById, updateOne } from '../../../../lib/helpers';
-import type { User } from '../../../../lib/types';
+import type { User, Allergy } from '../../../../lib/types';
 
 export default async function handler (
     req: NextApiRequest,
@@ -31,7 +31,7 @@ export default async function handler (
                 email?: string;
                 mobile?: string;
                 DOB?: string;
-                allergies?: string;
+                allergies?: string | string[] | Allergy[];
                 RH?: string;
             };
 
@@ -46,14 +46,18 @@ export default async function handler (
                 }
             }
             if(body.RH) updateDoc.RH = body.RH;
-            if(body.allergies) {
+            if (body.allergies) {
                 if (Array.isArray(body.allergies)) {
-                    updateDoc.allergies = body.allergies;
+                    // Normalize array entries: strings -> Allergy objects, objects -> assume already Allergy
+                    updateDoc.allergies = body.allergies.map((a) =>
+                        typeof a === 'string' ? { type: a } as Allergy : (a as Allergy)
+                    );
                 } else if (typeof body.allergies === 'string') {
                     updateDoc.allergies = body.allergies
-                    .split(/[ ,]+/)
-                    .map((a: string) => a.trim())
-                    .filter(Boolean);
+                        .split(/[ ,]+/)
+                        .map((a: string) => a.trim())
+                        .filter(Boolean)
+                        .map((s) => ({ type: s } as Allergy));
                 }
             }
 
