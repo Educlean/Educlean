@@ -1,15 +1,31 @@
 import { useState } from "react";
 import PrimaryButton from "./PrimaryButton";
 import Modal from "./Modal";
+// IMPORTAR SchoolDocument desde donde sea que esté definido
+import type { SchoolDocument } from "../../../lib/types"; // <-- ¡Asegura esta ruta!
 
+// Definimos la interfaz para la estructura de datos que se guarda/manipula.
+interface SchoolData {
+  // 1. AÑADIR _id como opcional para compatibilidad con el tipo SchoolDocument del padre.
+  _id?: string; 
+  name: string;
+  address: string;
+  phone: string;
+  lat: number;
+  lng: number;
+}
+
+// Definimos la interfaz para las props del componente
 type ASchoolFormProps = {
   isActive: boolean;
-  setSArray: React.Dispatch<React.SetStateAction<any[]>>;
+  // 2. CORREGIR el tipo de la prop setSArray para usar el tipo del padre.
+  setSArray: React.Dispatch<React.SetStateAction<SchoolDocument[]>>;
 };
 
 export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
   const [warning, setWarning] = useState<string>("");
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SchoolData>({
+    // ... (el estado inicial es compatible)
     name: "",
     address: "",
     phone: "",
@@ -22,12 +38,12 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // function to fetch lat lng from address using nominatim openstreetmap api
+  // Función para obtener lat lng de la dirección usando la API de Nominatim
   const fetchLatLng = async (address: string) => {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`,
     );
-    const data = await res.json();
+    const data: Array<{ lat: string, lon: string }> = await res.json();
     if (data && data.length > 0) {
       const place = data[0];
 
@@ -45,10 +61,10 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // geocode the address before submitting
+    
     try {
       const geoData = await fetchLatLng(formData.address);
-      const finalData = { ...formData, ...geoData };
+      const finalData: SchoolData = { ...formData, ...geoData }; // finalData ahora tiene _id?: string
 
       console.log("Data to save in DB:", finalData);
       const response = await fetch("/api/schools", {
@@ -59,12 +75,20 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
         body: JSON.stringify(finalData),
       });
 
-      const data = await response.json();
+      // Asegúrate de que la respuesta de la API incluya el _id generado
+      const data: { message?: string, _id?: string } = await response.json(); 
+
       if (!response.ok) {
         setWarning(data.message || "Error adding school");
       } else {
         setFormData({ name: "", address: "", phone: "", lat: 0, lng: 0 });
-        setSArray((prev) => [...prev, finalData]);
+        
+        // 3. CAST EXPLÍCITO para compatibilidad: 
+        // Aunque finalData tiene _id?, lo tratamos como SchoolDocument.
+        const schoolWithId = { ...finalData, _id: data._id || 'temp-id' }; // Aseguramos el _id si viene de la API
+        
+        // El cast final permite añadir SchoolData a SchoolDocument[]
+        setSArray((prev) => [...prev, schoolWithId as SchoolDocument]); 
         setActiveModal(true);
       }
     } catch (error) {
@@ -73,6 +97,7 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
       return;
     }
   };
+  
   return isActive ? (
     <div className="flex flex-col gap-5 w-full max-w-5xl rounded-lg mx-auto bg-white p-10">
       <div className="bg-red-500 flex-1 w-full"></div>
@@ -87,6 +112,7 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
               placeholder="School name"
               value={formData.name}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="flex flex-col">
@@ -98,6 +124,7 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
               placeholder="School Address"
               value={formData.address}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="flex flex-col">
@@ -109,6 +136,7 @@ export default function ASchoolForm({ isActive, setSArray }: ASchoolFormProps) {
               placeholder="School Phone"
               value={formData.phone}
               onChange={handleChange}
+              required
             />
           </div>
           {warning ? <p className="text-red-500 text-sm">{warning}</p> : null}
