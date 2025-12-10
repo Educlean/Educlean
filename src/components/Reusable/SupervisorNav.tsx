@@ -47,7 +47,7 @@ function SupervisorNavBar() {
   const isActive = (path: string) => router.pathname === path;
 
   return (
-    <div className="lg:w-[500px]">
+    <div className="lg:w-[300px]">
       {/* Mobile */}
       <div className="flex justify-center lg:hidden">
         <div className="bg-[var(--secondary)] flex flex-row justify-around px-30 items-center h-15 w-full rounded-lg">
