@@ -21,11 +21,13 @@ interface ScheduleRow {
   Wed?: string;
   Thu?: string;
   Fri?: string;
+  Sat?: string;
+  Sun?: string;
   schoolID: string;
 }
 
-type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri";
-const days: Day[] = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
+const days: Day[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export default async function handler(
   req: NextApiRequest,
