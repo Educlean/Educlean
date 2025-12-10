@@ -58,7 +58,7 @@ function SupervisorNavBar() {
                   isActive(href) ? "bg-green-50" : ""
                 }`}
               >
-                <Image src={icon} alt={`${label}-Icon`} />
+                <Image src={icon} alt={`${label}-Icon`} className="w-5 h-5" />
               </div>
             </Link>
           ))}
