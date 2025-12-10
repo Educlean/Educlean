@@ -16,7 +16,11 @@ function SupervisorNavBar() {
   const navItems = useMemo(
     () => [
       { href: "/supervisor/Dashboard", label: "Home", icon: home },
-      { href: "/supervisor/CreateAccount", label: "Create Account", icon: createUser },
+      {
+        href: "/supervisor/CreateAccount",
+        label: "Create Account",
+        icon: createUser,
+      },
       { href: "/supervisor/UploadFile", label: "Schedule", icon: uploadFile },
       { href: "/supervisor/Calculator", label: "Calculator", icon: calculator },
       { href: "/supervisor/School", label: "Schools", icon: book },
@@ -26,7 +30,11 @@ function SupervisorNavBar() {
 
   const navItemsMobile = useMemo(
     () => [
-      { href: "/supervisor/CreateAccount", label: "Create Account", icon: createUser },
+      {
+        href: "/supervisor/CreateAccount",
+        label: "Create Account",
+        icon: createUser,
+      },
       { href: "/supervisor/UploadFile", label: "Schedule", icon: uploadFile },
       { href: "/supervisor/Dashboard", label: "Home", icon: home },
       { href: "/supervisor/Calculator", label: "Calculator", icon: calculator },
@@ -50,7 +58,7 @@ function SupervisorNavBar() {
                   isActive(href) ? "bg-green-50" : ""
                 }`}
               >
-              <Image src={icon} alt={`${label}-Icon`} />
+                <Image src={icon} alt={`${label}-Icon`} />
               </div>
             </Link>
           ))}

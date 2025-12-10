@@ -1,9 +1,9 @@
-import home from '../../assets/icons/Home.svg';
-import request from '../../assets/icons/request.svg';
-import user from '../../assets/icons/user.svg';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter } from 'next/router';
+import home from "../../assets/icons/Home.svg";
+import request from "../../assets/icons/request.svg";
+import user from "../../assets/icons/user.svg";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/router";
 
 export default function SupervisorNavBar() {
   const router = useRouter();
@@ -34,7 +34,9 @@ export default function SupervisorNavBar() {
           <Link href="/cleaner/DashboardCleaner">
             <div
               className={`flex flex-row rounded-lg px-5 py-2 gap-3 ${
-                isActive('/cleaner/DashboardCleaner') ? 'bg-[var(--light-gray)]' : ''
+                isActive("/cleaner/DashboardCleaner")
+                  ? "bg-[var(--light-gray)]"
+                  : ""
               }`}
             >
               <Image src={home} alt="Home-Icon" />
@@ -45,7 +47,7 @@ export default function SupervisorNavBar() {
           <Link href="/cleaner/Profile">
             <div
               className={`flex flex-row rounded-lg px-5 py-2 gap-3 ${
-                isActive('/clenaer/Profile') ? 'bg-[var(--light-gray)]' : ''
+                isActive("/clenaer/Profile") ? "bg-[var(--light-gray)]" : ""
               }`}
             >
               <Image src={user} alt="user-Icon" />
@@ -56,15 +58,15 @@ export default function SupervisorNavBar() {
           <Link href="/cleaner/requests">
             <div
               className={`flex flex-row rounded-lg px-5 py-2 gap-3 ${
-                isActive('/cleaner/RequestsCleaner') ? 'bg-[var(--light-gray)]' : ''
+                isActive("/cleaner/RequestsCleaner")
+                  ? "bg-[var(--light-gray)]"
+                  : ""
               }`}
             >
               <Image src={request} alt="request-Icon" />
               <p>Requests</p>
             </div>
           </Link>
-
-        
         </div>
       </div>
     </div>
