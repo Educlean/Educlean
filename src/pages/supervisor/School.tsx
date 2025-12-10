@@ -85,7 +85,7 @@ export default function CreateSchool({ schools }: SchoolProps) {
 }
 
 export const getServerSideProps: GetServerSideProps<SchoolProps> = async () => {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   const response = await fetch(`${baseUrl}/api/schools`);
   const data: SchoolDocument[] = await response.json();
