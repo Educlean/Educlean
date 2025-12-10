@@ -258,7 +258,7 @@ export default function CleaningCalculator() {
 
                     ))}
                 </div>
-                <div className="my-10 rounded max-w-xl lg:max-w-6xl mx-auto">
+                <div className="my-10 rounded max-w-6xl mx-auto">
                     <div className="bg-[var(--primary)] rounded-lg ">
                         <h2 className="text-lg font-semibold mb-2 p-2 text-white ">Time nedeed:</h2>
                     </div>
