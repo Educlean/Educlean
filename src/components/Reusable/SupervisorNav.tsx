@@ -50,7 +50,7 @@ function SupervisorNavBar() {
     <div className="lg:w-[300px]">
       {/* Mobile */}
       <div className="flex justify-center lg:hidden">
-        <div className="bg-[var(--secondary)] flex flex-row justify-around px-20 items-center h-15 w-full rounded-lg">
+        <div className="bg-[var(--secondary)] flex flex-row justify-around px-20 items-center h-15 w-full rounded-t-lg">
           {navItemsMobile.map(({ href, icon, label }) => (
             <Link key={href} href={href}>
               <div
