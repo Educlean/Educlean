@@ -50,7 +50,7 @@ function SupervisorNavBar() {
     <div className="lg:w-[300px]">
       {/* Mobile */}
       <div className="flex justify-center lg:hidden">
-        <div className="bg-[var(--secondary)] flex flex-row justify-around px-30 items-center h-15 w-full rounded-lg">
+        <div className="bg-[var(--secondary)] flex flex-row justify-around px-20 items-center h-15 w-full rounded-lg">
           {navItemsMobile.map(({ href, icon, label }) => (
             <Link key={href} href={href}>
               <div
@@ -58,7 +58,7 @@ function SupervisorNavBar() {
                   isActive(href) ? "bg-green-50" : ""
                 }`}
               >
-                <Image src={icon} alt={`${label}-Icon`} className="w-5 h-5" />
+                <Image src={icon} alt={`${label}-Icon`} />
               </div>
             </Link>
           ))}
