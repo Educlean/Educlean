@@ -56,7 +56,7 @@ export default function Layout({ children }: LayoutProps) {
           {children}
         </main>
 
-        <div id="nav-placeholder">{renderNavigation()}</div>
+        <div id="nav-placeholder" className="lg:h-screen lg:overflow-y-auto">{renderNavigation()}</div>
       </div>
     </div>
   );

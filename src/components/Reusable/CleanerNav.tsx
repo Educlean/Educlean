@@ -14,7 +14,7 @@ export default function SupervisorNavBar() {
   return (
     <div className="lg:w-[300px]">
       {/* Mobile */}
-      <div className="flex justify-center lg:hidden">
+      <div className="flex justify-center mb-5 lg:hidden">
         <div className="bg-[var(--secondary)] flex flex-row justify-between items-center h-12 w-40 p-4 rounded-lg">
           <Link href="/cleaner/DashboardCleaner">
             <Image src={home} alt="Home-Icon" />
