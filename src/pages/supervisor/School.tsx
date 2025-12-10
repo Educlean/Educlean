@@ -84,10 +84,8 @@ export default function CreateSchool({ schools }: SchoolProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps<SchoolProps> = async (context) => {
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-  const host = context.req.headers.host;
-  const baseUrl = `${protocol}://${host}`;
+export const getServerSideProps: GetServerSideProps<SchoolProps> = async () => {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
   const response = await fetch(`${baseUrl}/api/schools`);
   const data: SchoolDocument[] = await response.json();
@@ -98,3 +96,4 @@ export const getServerSideProps: GetServerSideProps<SchoolProps> = async (contex
     },
   };
 };
+
