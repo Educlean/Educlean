@@ -1,4 +1,3 @@
-// pages/supervisor/SDashboard.tsx
 "use client";
 
 import Banner from "../../components/Reusable/Banner";
@@ -9,13 +8,11 @@ import Image from "next/image";
 import Link from "next/link";
 import locationIcon from "../../assets/icons/location.svg";
 import { useUser } from "@/context/UserContext";
-import StackedBarChart from "../../components/Reusable/StackedBarChart"
-// import { useMemo } from "react";
+import StackedBarChart from "../../components/Reusable/StackedBarChart";
+
 import useSWR from "swr";
 import { format } from "date-fns-tz";
 import { useEffect, useState } from "react";
-
-
 
 interface School {
   _id: string;
@@ -36,52 +33,34 @@ interface Employee {
   };
 }
 
-// --- Fetcher global para SWR (include credentials for same-origin cookies) ---
 const fetcher = (url: string) =>
-  fetch(url, { credentials: 'same-origin' }).then((res) => {
+  fetch(url, { credentials: "same-origin" }).then((res) => {
     if (!res.ok) throw new Error(`Fetch error ${res.status}`);
     return res.json();
   });
 
-// --- Dashboard Content ---
 function SDashboardContent() {
-  // const today = new Date().toISOString().split("T")[0];
   const { user } = useUser();
   const displayName = user?.name || "";
   const [vancouverDate, setVancouverDate] = useState<string | null>(null);
 
   useEffect(() => {
-    // compute the date on the client only to avoid SSR/client mismatch
-    const d = format(new Date(), "yyyy-MM-dd", { timeZone: "America/Vancouver" });
+    const d = format(new Date(), "yyyy-MM-dd", {
+      timeZone: "America/Vancouver",
+    });
     setVancouverDate(d);
   }, []);
 
-  // SWR hooks
-  const { data: requests = [], isLoading: loadingRequests } = useSWR<CardProps[]>(
-    // only fetch when we have the client-side date to avoid hydration mismatches
-    vancouverDate ? `/api/requests/byDay?date=${vancouverDate}` : null,
-    fetcher
-  );
-  console.log("Requests:", requests)
+  const { data: requests = [], isLoading: loadingRequests } = useSWR<
+    CardProps[]
+  >(vancouverDate ? `/api/requests/byDay?date=${vancouverDate}` : null, fetcher);
 
-  const { data: schools = [], isLoading: loadingSchools } = useSWR<School[]>(
-    `/api/schools`,
-    fetcher
-  );
-  console.log("Schools:", schools);
+  const { data: schools = [], isLoading: loadingSchools } =
+    useSWR<School[]>(`/api/schools`, fetcher);
 
-  const { data: employees = [], isLoading: loadingEmployees } = useSWR<Employee[]>(
-    vancouverDate ? `/api/schedules/byDay?date=${vancouverDate}` : null,
-    fetcher
-  );
-
-  console.log("Employees:", employees);
-
-  // Memoized employees with school data
-
-
-  // console.log("Employees with School:", employeesWithSchool);
-
+  const { data: employees = [], isLoading: loadingEmployees } = useSWR<
+    Employee[]
+  >(vancouverDate ? `/api/schedules/byDay?date=${vancouverDate}` : null, fetcher);
 
   if (loadingRequests || loadingSchools || loadingEmployees) {
     return (
@@ -90,13 +69,15 @@ function SDashboardContent() {
           <div className="inline-block w-8 h-8 border-4 border-gray-300 border-t-[#39B52D] rounded-full animate-spin"></div>
           <p className="mt-2 text-gray-500">Loading your dashboard...</p>
         </div>
-      </div>)
+      </div>
+    );
   }
 
   return (
-    <div className="lg:overflow-y-auto min-h-screen overflow-y-auto max-h-[564px]">
-      {user ? (
+    <div className="min-h-screen lg:overflow-visible">
+      {user && (
         <div>
+          {/* HEADER */}
           <Banner
             label={`Hi, ${displayName.split(" ")[0]} 👋🏻`}
             className="lg:bg-[var(--light-gray)] px-5 py-5"
@@ -105,7 +86,13 @@ function SDashboardContent() {
 
           <div className="md:max-w-2xl md:mx-auto lg:max-w-full lg:flex">
             {/* Today Requests */}
-            <div className="rounded-md bg-[var(--light-gray)] m-4 p-5 max-h-[564px] overflow-y-auto lg:flex-1 lg:bg-white">
+            <div
+              className="
+                rounded-md bg-[var(--light-gray)] m-4 p-5 
+                lg:flex-1 lg:bg-white
+                lg:max-h-[calc(100vh-240px)] lg:overflow-y-auto
+              "
+            >
               <div className="flex flex-row justify-between">
                 <h2 className="text-xl font-bold">Today Request</h2>
                 <Link href="/supervisor/CreateRequest" passHref>
@@ -117,6 +104,7 @@ function SDashboardContent() {
                   </div>
                 </Link>
               </div>
+
               {requests.map((request, i) => (
                 <Card
                   key={i}
@@ -131,8 +119,15 @@ function SDashboardContent() {
             </div>
 
             {/* Team Section */}
-            <div className="flex flex-col gap-4 bg-[var(--light-gray)] m-4 p-5 max-h-[564px] overflow-y-auto rounded-md lg:flex-1 lg:bg-white">
+            <div
+              className="
+                flex flex-col gap-4 bg-[var(--light-gray)] m-4 p-5 rounded-md
+                lg:flex-1 lg:bg-white
+                lg:max-h-[calc(100vh-240px)] lg:overflow-y-auto
+              "
+            >
               <h2 className="text-xl font-bold">Your Team Today</h2>
+
               {schools.map((school) => (
                 <div
                   key={school._id}
@@ -152,23 +147,28 @@ function SDashboardContent() {
                     {employees
                       .filter((emp) => emp.school?._id === school._id)
                       .map((emp) => (
-                        <EmployeeCard key={emp.id} name={emp.user.name} className="my-2" />
+                        <EmployeeCard
+                          key={emp.id}
+                          name={emp.user.name}
+                          className="my-2"
+                        />
                       ))}
                   </div>
                 </div>
               ))}
             </div>
           </div>
+
+          {/* GRAPH */}
           <div className="bg-[var(--light-gray)] md:bg-white mx-4 mb-4 p-5 rounded-sm">
-            <StackedBarChart/>
+            <StackedBarChart />
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
 
-// --- Page export (no nested provider: `_app.tsx` already wraps pages with `UserProvider`) ---
 export default function SDashboard() {
   return <SDashboardContent />;
 }
