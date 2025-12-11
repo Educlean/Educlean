@@ -11,11 +11,11 @@ interface RequestUpdateBody {
 
 // Interfaz para el objeto de actualización de la solicitud, combinando campos comunes y opcionales.
 interface RequestUpdateData extends Document {
-    status: "todo" | "in_progress" | "done";
-    updatedAt: Date;
-    startedAt?: Date;
-    completedAt?: Date;
-    assignedTo?: string;
+  status: "todo" | "in_progress" | "done";
+  updatedAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  assignedTo?: string;
 }
 
 export default async function handler(
@@ -45,7 +45,7 @@ export default async function handler(
         // Primero, obtener los horarios de hoy para este empleado en la zona horaria de Vancouver
         const today = getVancouverDateString();
         const { startOfDay } = getVancouverDayBounds(today);
-        
+
         // Asumiendo que 'schedules' tiene un esquema donde schoolId es un ObjectId
         const schedules = await db
           .collection<Document>("schedules") // Tipamos la colección si es necesario
@@ -62,7 +62,7 @@ export default async function handler(
 
         if (schoolIds.length > 0) {
           // Filtramos las solicitudes por los ObjectIds
-          filter.schoolId = { $in: schoolIds.map(id => new ObjectId(id)) };
+          filter.schoolId = { $in: schoolIds.map(String) };
         } else {
           // No se encontraron horarios, devolver array vacío
           return res.status(200).json([]);
@@ -72,7 +72,7 @@ export default async function handler(
       // Obtener solicitudes con información de la escuela usando agregación optimizada
       // Importamos la función getRequestsWithSchoolInfo (debe devolver Promise<Document[]>)
       const { getRequestsWithSchoolInfo } = await import("../../../../lib/helpers");
-      
+
       const requestsWithSchoolInfo: Document[] = await getRequestsWithSchoolInfo(
         filter,
         { useCache: true, cacheTtl: 1 * 60 * 1000 } // Cache por 1 minuto
@@ -128,7 +128,7 @@ export default async function handler(
 
       // Obtener la solicitud actualizada con información de la escuela usando agregación
       const { getRequestsWithSchoolInfo } = await import("../../../../lib/helpers");
-      
+
       const [updatedRequestWithSchool]: Document[] = await getRequestsWithSchoolInfo(
         { _id: new ObjectId(requestId) },
         { useCache: false } // No cachear búsquedas de una sola solicitud
