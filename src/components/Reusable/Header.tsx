@@ -29,7 +29,9 @@ export default function Header() {
       />
       <div className="flex items-center gap-4">
         <Image src={bell} alt="bell-icon" className="h-5 w-5" />
-        <button onClick={onLogout} className="text-white text-sm">Log out</button>
+        <button onClick={onLogout} className="border border-red-500 text-red-500 text-sm px-3 -mr-6 py-1 rounded hover:bg-red-500 hover:text-white transition">
+          Log out
+        </button>
       </div>
     </div>
   );

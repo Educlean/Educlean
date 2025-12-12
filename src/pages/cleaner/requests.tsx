@@ -240,9 +240,9 @@ const RequestsPage = () => {
 
       <div>
         {/* Page Title */}
-        <div className="bg-white rounded-lg p-6 mb-6">
+        <div className=" bg-white rounded-lg p-6 mb-6">
           {/* Tabs */}
-          <div className="flex border-b border-gray-200 mb-6">
+          <div className="flex justify-between border-b border-gray-200 mb-6">
             <button
               onClick={() => setActiveTab("todo")}
               className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
