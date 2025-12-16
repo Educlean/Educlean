@@ -1,29 +1,29 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../../lib/mongodb";
-import allowCors from '../../../lib/allowCors';
-export function getVancouverMidnightRange(queryDate: string) {
-  // Medianoche en Vancouver (ajusta a -07:00 o -08:00 según la época)
-  const start = new Date(`${queryDate}T00:00:00-07:00`);
+import allowCors from "../../../lib/allowCors";
+
+export function getUtcMidnightRange(queryDate: string) {
+  const start = new Date(`${queryDate}T00:00:00Z`);
   const end = new Date(start);
   end.setUTCDate(end.getUTCDate() + 1);
 
   return { start, end };
 }
 
-async function getRequestByDay(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+async function getRequestByDay(req: NextApiRequest, res: NextApiResponse) {
   try {
     const db = await getDb();
 
     console.log("Connected DB in requestByDay:", db.databaseName);
-    console.log("Count documents in requests:", await db.collection("requests").countDocuments());
+    console.log(
+      "Count documents in requests:",
+      await db.collection("requests").countDocuments()
+    );
 
     const queryDate = req.query.date as string;
-    const { start, end } = getVancouverMidnightRange(queryDate);
+    const { start, end } = getUtcMidnightRange(queryDate);
 
-    console.log("Filter for Vancouver day:", { start, end });
+    console.log("Filter for UTC day:", { start, end });
 
     const requests = await db
       .collection("requests")
@@ -38,6 +38,4 @@ async function getRequestByDay(
   }
 }
 
-
 export default allowCors(getRequestByDay);
-

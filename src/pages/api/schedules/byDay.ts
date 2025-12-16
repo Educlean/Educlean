@@ -3,11 +3,8 @@ import { getDb } from "../../../../lib/mongodb";
 import allowCors from '../../../lib/allowCors';
 // import { findMany } from "../../../../lib/helpers";
 
-
-
-function getVancouverMidnightRange(queryDate: string) {
-    // Medianoche en Vancouver (ajusta a -07:00 o -08:00 según la época)
-    const start = new Date(`${queryDate}T00:00:00-07:00`);
+function getUtcMidnightRange(queryDate: string) {
+    const start = new Date(`${queryDate}T00:00:00Z`);
     const end = new Date(start);
     end.setUTCDate(end.getUTCDate() + 1);
 
@@ -26,7 +23,7 @@ else if (req.method === "GET") {
   console.log("Received GET request with query from schedules:", req.query);
 
   const queryDate = req.query.date as string;
-  const { start, end } = getVancouverMidnightRange(queryDate);
+  const { start, end } = getUtcMidnightRange(queryDate);
 
   try {
     const db = await getDb();

@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../../lib/mongodb";
 import { ObjectId, Document } from "mongodb"; // Importar Document de MongoDB
-import { getVancouverDateString, getVancouverDayBounds } from "../../../../lib/timezone";
+import { getUtcDateString, getUtcDayBounds } from "../../../../lib/timezone";
 
 interface RequestUpdateBody {
   requestId: string;
@@ -42,9 +42,9 @@ export default async function handler(
         filter.schoolId = new ObjectId(schoolId as string);
       } else {
         // Si no se proporciona schoolId, obtener todas las escuelas donde este empleado trabaja
-        // Primero, obtener los horarios de hoy para este empleado en la zona horaria de Vancouver
-        const today = getVancouverDateString();
-        const { startOfDay } = getVancouverDayBounds(today);
+        // Primero, obtener los horarios de hoy para este empleado en la zona horaria UTC
+        const today = getUtcDateString();
+        const { startOfDay } = getUtcDayBounds(today);
 
         // Asumiendo que 'schedules' tiene un esquema donde schoolId es un ObjectId
         const schedules = await db
@@ -71,12 +71,15 @@ export default async function handler(
 
       // Obtener solicitudes con información de la escuela usando agregación optimizada
       // Importamos la función getRequestsWithSchoolInfo (debe devolver Promise<Document[]>)
-      const { getRequestsWithSchoolInfo } = await import("../../../../lib/helpers");
-
-      const requestsWithSchoolInfo: Document[] = await getRequestsWithSchoolInfo(
-        filter,
-        { useCache: true, cacheTtl: 1 * 60 * 1000 } // Cache por 1 minuto
+      const { getRequestsWithSchoolInfo } = await import(
+        "../../../../lib/helpers"
       );
+
+      const requestsWithSchoolInfo: Document[] =
+        await getRequestsWithSchoolInfo(
+          filter,
+          { useCache: true, cacheTtl: 1 * 60 * 1000 } // Cache por 1 minuto
+        );
 
       return res.status(200).json(requestsWithSchoolInfo);
     } catch (error) {
@@ -120,19 +123,26 @@ export default async function handler(
       }
 
       // Actualizar la solicitud usando el helper optimizado (updateOne requiere Partial<T>)
-      const result = await updateOne<Document>("requests", requestId, updateData);
+      const result = await updateOne<Document>(
+        "requests",
+        requestId,
+        updateData
+      );
 
       if (result.matchedCount === 0) {
         return res.status(404).json({ error: "Request not found" });
       }
 
       // Obtener la solicitud actualizada con información de la escuela usando agregación
-      const { getRequestsWithSchoolInfo } = await import("../../../../lib/helpers");
-
-      const [updatedRequestWithSchool]: Document[] = await getRequestsWithSchoolInfo(
-        { _id: new ObjectId(requestId) },
-        { useCache: false } // No cachear búsquedas de una sola solicitud
+      const { getRequestsWithSchoolInfo } = await import(
+        "../../../../lib/helpers"
       );
+
+      const [updatedRequestWithSchool]: Document[] =
+        await getRequestsWithSchoolInfo(
+          { _id: new ObjectId(requestId) },
+          { useCache: false } // No cachear búsquedas de una sola solicitud
+        );
 
       return res.status(200).json({
         success: true,

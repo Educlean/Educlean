@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../../lib/mongodb";
 
-// No necesitamos una función para el rango de medianoche de Vancouver en este caso,
+// No se necesita una función de rango de medianoche específica de zona horaria aquí,
 // ya que la agregación de MongoDB maneja la extracción del mes/año del campo 'time'.
 
 export default async function getRequestCountByMonth(

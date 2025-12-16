@@ -4,8 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { GeolocationService, Coordinates } from "../../../lib/geolocation";
 import { useUser } from "../../context/UserContext";
-import { getVancouverDateString } from "../../../lib/timezone";
-
 // Interfaces mantenidas y añadidas
 interface ShiftData {
   school: string;
@@ -75,7 +73,7 @@ const ShiftTracking = () => {
 
   useEffect(() => {
     // Asegurarse de que el router esté listo y schoolId sea una cadena antes de inicializar
-    if (user && router.isReady && typeof schoolId === 'string') {
+    if (user && router.isReady && typeof schoolId === "string") {
       initializeShiftData();
       checkLocationPermission();
     }
@@ -83,7 +81,7 @@ const ShiftTracking = () => {
 
   const initializeShiftData = async () => {
     // Asegurarse de que schoolId sea una cadena para usarlo
-    if (!user?.employeeID || typeof schoolId !== 'string') {
+    if (!user?.employeeID || typeof schoolId !== "string") {
       setError("Missing user data or school ID");
       setLoading(false);
       return;
@@ -122,8 +120,9 @@ const ShiftTracking = () => {
 
       if (scheduleResponse.ok) {
         // Tipado del arreglo para eliminar 'any'
-        const scheduleData: CleanerScheduleItem[] = await scheduleResponse.json(); 
-        
+        const scheduleData: CleanerScheduleItem[] =
+          await scheduleResponse.json();
+
         // Uso del tipado al hacer el find
         const todaySchedule = scheduleData.find(
           (schedule) => schedule.schoolId === schoolId // 'schedule' está tipado como CleanerScheduleItem
@@ -232,15 +231,15 @@ const ShiftTracking = () => {
       if (err instanceof Error) {
         // Esto asume que el error de distancia se maneja aquí al hacer el throw
         if (err.message.includes("150 meters")) {
-            setSuccessMessage({
-                title: "You cannot connect",
-                description: "You are out of the school limit",
-                time: "",
-                message: "",
-            });
-            setShowSuccessDialog(true);
+          setSuccessMessage({
+            title: "You cannot connect",
+            description: "You are out of the school limit",
+            time: "",
+            message: "",
+          });
+          setShowSuccessDialog(true);
         } else {
-            setError(err.message);
+          setError(err.message);
         }
       } else setError("Failed to clock in");
     } finally {
@@ -304,20 +303,20 @@ const ShiftTracking = () => {
       });
       setShowSuccessDialog(true);
     } catch (err) {
-        if (err instanceof Error) {
-            // Manejar el error de distancia de forma similar al clock-in
-            if (err.message.includes("150 meters")) {
-                setSuccessMessage({
-                    title: "You cannot connect",
-                    description: "You are out of the school limit",
-                    time: "",
-                    message: "Please try again when closer.",
-                });
-                setShowSuccessDialog(true);
-            } else {
-                setError(err.message);
-            }
-        } else setError("Failed to clock out");
+      if (err instanceof Error) {
+        // Manejar el error de distancia de forma similar al clock-in
+        if (err.message.includes("150 meters")) {
+          setSuccessMessage({
+            title: "You cannot connect",
+            description: "You are out of the school limit",
+            time: "",
+            message: "Please try again when closer.",
+          });
+          setShowSuccessDialog(true);
+        } else {
+          setError(err.message);
+        }
+      } else setError("Failed to clock out");
     } finally {
       setIsClockingOut(false);
     }
@@ -333,7 +332,7 @@ const ShiftTracking = () => {
 
   // Helper function to format 24-hour time string (e.g., "17:00") to 12-hour format
   const formatTimeString = (timeString: string) => {
-    const [hours, minutes] = timeString.split(':').map(Number);
+    const [hours, minutes] = timeString.split(":").map(Number);
     const date = new Date();
     date.setHours(hours, minutes, 0, 0);
     return date.toLocaleTimeString("en-US", {

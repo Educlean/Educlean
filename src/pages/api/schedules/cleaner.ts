@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../../lib/mongodb";
 import { ObjectId } from "mongodb";
-import { getVancouverWeekBounds, getVancouverDayBounds } from "../../../../lib/timezone";
+import { getUtcWeekBounds, getUtcDayBounds } from "../../../../lib/timezone";
 
 // Tipo exacto del filtro de fecha usado en tus helpers
 type DateFilter = {
@@ -26,8 +26,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       let dateFilter: DateFilter;
 
       if (date) {
-        // Get schedules for a specific date in Vancouver timezone
-        const { startOfDay, endOfDay } = getVancouverDayBounds(date as string);
+        // Get schedules for a specific date in UTC
+        const { startOfDay, endOfDay } = getUtcDayBounds(date as string);
 
         dateFilter = {
           date: {
@@ -36,9 +36,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         };
       } else if (startDate && endDate) {
-        // Get schedules for a date range in Vancouver timezone
-        const { startOfDay: rangeStart } = getVancouverDayBounds(startDate as string);
-        const { endOfDay: rangeEnd } = getVancouverDayBounds(endDate as string);
+        // Get schedules for a date range in UTC
+        const { startOfDay: rangeStart } = getUtcDayBounds(startDate as string);
+        const { endOfDay: rangeEnd } = getUtcDayBounds(endDate as string);
 
         dateFilter = {
           date: {
@@ -47,8 +47,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         };
       } else {
-        // Default to current week in Vancouver timezone
-        const { startOfWeek, endOfWeek } = getVancouverWeekBounds();
+        // Default to current week in UTC
+        const { startOfWeek, endOfWeek } = getUtcWeekBounds();
 
         dateFilter = {
           date: {

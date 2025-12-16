@@ -42,25 +42,25 @@ const fetcher = (url: string) =>
 function SDashboardContent() {
   const { user } = useUser();
   const displayName = user?.name || "";
-  const [vancouverDate, setVancouverDate] = useState<string | null>(null);
+  const [currentDate, setCurrentDate] = useState<string | null>(null);
 
   useEffect(() => {
     const d = format(new Date(), "yyyy-MM-dd", {
-      timeZone: "America/Vancouver",
+      timeZone: "UTC",
     });
-    setVancouverDate(d);
+    setCurrentDate(d);
   }, []);
 
   const { data: requests = [], isLoading: loadingRequests } = useSWR<
     CardProps[]
-  >(vancouverDate ? `/api/requests/byDay?date=${vancouverDate}` : null, fetcher);
+  >(currentDate ? `/api/requests/byDay?date=${currentDate}` : null, fetcher);
 
   const { data: schools = [], isLoading: loadingSchools } =
     useSWR<School[]>(`/api/schools`, fetcher);
 
   const { data: employees = [], isLoading: loadingEmployees } = useSWR<
     Employee[]
-  >(vancouverDate ? `/api/schedules/byDay?date=${vancouverDate}` : null, fetcher);
+  >(currentDate ? `/api/schedules/byDay?date=${currentDate}` : null, fetcher);
 
   if (loadingRequests || loadingSchools || loadingEmployees) {
     return (

@@ -59,7 +59,7 @@ const DashboardCleaner = () => {
       const data = await response.json();
       setSchedules(data);
 
-      // Find today's schedule using Vancouver timezone
+      // Find today's schedule using UTC timezone
       const todayShift = data.find(
         (schedule: Schedule) => isToday(schedule.date)
       );
