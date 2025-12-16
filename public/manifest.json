@@ -3,8 +3,8 @@
   "short_name": "Educlean",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "background_color": "#13254A",
+  "theme_color": "#13254A",
   "orientation": "portrait",
   "icons": [
     {

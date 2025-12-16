@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const db = await getDb();
 
-    // 1️⃣ Accounts
+    // 1️ Accounts
     const accountsCollection = db.collection("accounts");
     await accountsCollection.insertOne({
       employeeID: "EMP001",
@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       role: "cleaner",
     });
 
-    // 2️⃣ Users
+    // 2️ Users
     const usersCollection = db.collection("users");
     await usersCollection.insertOne({
       accountId: "EMP001", // temporary reference
@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       RH: "O+",
     });
 
-    // 3️⃣ Schools
+    // 3️ Schools
     const schoolsCollection = db.collection("schools");
     await schoolsCollection.insertOne({
       schoolName: "Saint Patrick's School",
@@ -35,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       shortName: "SPS",
     });
 
-    // 4️⃣ Requests
+    // 4️ Requests
     const requestsCollection = db.collection("requests");
     await requestsCollection.insertOne({
       schoolId: "SCHOOL001", // temporary reference
@@ -45,7 +45,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       status: "not started",
       time: new Date("2025-09-10T10:00:00Z"),
     });
-
     // 5️⃣ Schedules
     const schedulesCollection = db.collection("schedules");
     await schedulesCollection.insertOne({
