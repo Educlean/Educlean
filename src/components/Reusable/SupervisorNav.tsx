@@ -69,7 +69,7 @@ function SupervisorNavBar() {
                   }`}
                 >
                   {Icon ? (
-                    <Icon className="w-5 h-5 text-white" />
+                    <Icon className="w-5 h-5 text-black" />
                   ) : (
                     <Image src={icon} alt={`${label}-Icon`} />
                   )}
