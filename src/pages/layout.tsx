@@ -48,16 +48,23 @@ export default function Layout({ children }: LayoutProps) {
     }
   };
 
-  return (
-    <div>
-      <Header />
-      <div className="lg:flex lg:flex-row-reverse">
-        <main className="lg:bg-[var(--light-gray)] flex-1 relative">
-          {children}
-        </main>
+return (
+  <div className="min-h-screen flex flex-col">
+    <Header />
 
-        <div id="nav-placeholder" className="lg:h-screen lg:overflow-y-auto">{renderNavigation()}</div>
+    <div className="flex flex-1 flex-col lg:flex-row-reverse">
+      <main className="flex-1 lg:bg-[var(--light-gray)] relative">
+        {children}
+      </main>
+
+      <div
+        id="nav-placeholder"
+        className="lg:h-screen lg:overflow-y-auto"
+      >
+        {renderNavigation()}
       </div>
     </div>
-  );
+  </div>
+);
+
 }
