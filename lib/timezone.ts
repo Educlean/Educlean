@@ -22,6 +22,17 @@ export function getUtcDateString(): string {
   return `${year}-${month}-${day}`;
 }
 
+export function getLocalDateString(): string {
+  const now = new Date();
+  const localDate = new Date(now.toLocaleString("en-US"));
+
+  const year = localDate.getFullYear();
+  const month = String(localDate.getMonth() + 1).padStart(2, "0");
+  const day = String(localDate.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 /**
  * Get the current date and time in UTC
  * @returns {Date} Date object representing current time in UTC
@@ -88,7 +99,7 @@ export function getUtcWeekBounds(): {
  * @returns {boolean} True if the date is today in UTC
  */
 export function isToday(dateString: string): boolean {
-  const today = getUtcDateString();
+  const today = getLocalDateString();
   const checkDate = dateString.split("T")[0];
   return checkDate === today;
 }
