@@ -58,12 +58,13 @@ const DashboardCleaner = () => {
 
       const data = await response.json();
       setSchedules(data);
-
+      console.log("Fetched schedules:", data);
       // Find today's schedule using UTC timezone
       const todayShift = data.find(
         (schedule: Schedule) => isToday(schedule.date)
       );
       setTodaySchedule(todayShift || null);
+      
     } catch (error) {
       console.error("Error fetching schedules:", error);
       setError("Failed to load schedules. Please try again.");
