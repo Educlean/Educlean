@@ -49,7 +49,10 @@ const DashboardCleaner = () => {
       setError(null);
 
       const response = await fetch(
-        `/api/schedules/cleaner?employeeID=${user.employeeID}`
+        `/api/schedules/cleaner?employeeID=${user.employeeID}`,
+        {
+          cache: "no-store",
+        }
       );
 
       if (!response.ok) {
@@ -64,7 +67,7 @@ const DashboardCleaner = () => {
         (schedule: Schedule) => isToday(schedule.date)
       );
       setTodaySchedule(todayShift || null);
-      
+
     } catch (error) {
       console.error("Error fetching schedules:", error);
       setError("Failed to load schedules. Please try again.");

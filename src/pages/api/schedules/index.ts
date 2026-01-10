@@ -4,18 +4,16 @@ import * as XLSX from "xlsx";
 import { Db, ObjectId } from "mongodb";
 import fs from "fs";
 import { getDb } from "../../../../lib/mongodb";
-//import { findMany } from "../../../../lib/helpers";
 
 export const config = {
   api: {
-    bodyParser: false, // Needed for formidable to handle file uploads
+    bodyParser: false,
   },
 };
 
-// Interfaz que define las columnas de tu Excel
 interface ScheduleRow {
   employeeID: string;
-  startDate: string | number; // can be Excel date number or string
+  startDate: string | number;
   Mon?: string;
   Tue?: string;
   Wed?: string;
@@ -33,120 +31,164 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  if (req.method == "POST") {
-    const form = formidable({
-      multiples: false,
-      maxFileSize: 2 * 1024 * 1024, // 2MB max
-      filter: ({ mimetype }) =>
-        mimetype ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-        mimetype === "application/vnd.ms-excel",
-    });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-    form.parse(req, async (err, fields, files) => {
-      if (err) {
-        console.error("Error parsing file:", err);
-        return res.status(400).json({ error: "Invalid file" });
+  const form = formidable({
+    multiples: false,
+    maxFileSize: 2 * 1024 * 1024,
+  });
+
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      console.error(err);
+      return res.status(400).json({ error: "Invalid file" });
+    }
+
+    try {
+      const uploaded = files.file;
+      if (!uploaded) {
+        return res.status(400).json({ error: "No file received" });
       }
 
-      try {
-        const uploaded = files.file;
-        if (!uploaded)
-          return res.status(400).json({ error: "No file received" });
-        const file: File = Array.isArray(uploaded) ? uploaded[0] : uploaded;
+      const file: File = Array.isArray(uploaded) ? uploaded[0] : uploaded;
 
-        // Read Excel
-        const workbook = XLSX.readFile(file.filepath);
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows: ScheduleRow[] = XLSX.utils.sheet_to_json<ScheduleRow>(sheet);
+      const workbook = XLSX.readFile(file.filepath);
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows: ScheduleRow[] =
+        XLSX.utils.sheet_to_json<ScheduleRow>(sheet);
 
-        const db: Db = await getDb();
-        let insertedCount = 0;
+      const db: Db = await getDb();
+      let insertedCount = 0;
 
-        for (const row of rows) {
-          console.log("Fila cruda:", row);
-          console.log("Sun value:", row.Sun, typeof row.Sun);
-            console.log("Keys de la fila:", Object.keys(row));
-          const { employeeID, startDate, schoolID } = row;
-          if (!employeeID || !startDate || !schoolID) {
-            console.warn("Fila inválida, se ignora:", row);
-            continue;
-          }
+      /**
+       * 1️⃣ PRIMERO: detectar TODAS las semanas que hay que limpiar
+       */
+      const weeksToClear = new Map<
+        string,
+        { userId: ObjectId; start: Date; end: Date }
+      >();
 
-          // Normaliza employeeID
-          const employeeIDClean = String(employeeID).trim();
-          const user = await db
-            .collection("users")
-            .findOne({ employeeID: employeeIDClean });
-          if (!user) {
-            console.warn(
-              `No se encontró usuario con employeeId ${employeeIDClean}`,
-            );
-            continue;
-          }
+      for (const row of rows) {
+        const { employeeID, startDate } = row;
+        if (!employeeID || !startDate) continue;
 
-          const school = await db
-            .collection("schools")
-            .findOne({ _id: new ObjectId(schoolID) });
-          if (!school) {
-            console.warn(`No se encontró escuela con ID ${schoolID}`);
-            continue;
-          }
+        const employeeIDClean = String(employeeID).trim();
 
-          // Fecha inicial de la semana robusta
-          let weekStart: Date;
-          if (typeof startDate === "number") {
-            // Número de Excel
-            const d = XLSX.SSF.parse_date_code(startDate);
-            weekStart = new Date(d.y, d.m - 1, d.d);
-          } else if (typeof startDate === "string") {
-            const [year, month, day] = startDate.split("-").map(Number);
-            weekStart = new Date(year, month - 1, day);
-          } else {
-            console.warn("startDate inválido, se ignora fila:", row);
-            continue;
-          }
-          
+        const user = await db
+          .collection("users")
+          .findOne({ employeeID: employeeIDClean });
+        if (!user) continue;
 
-          for (const dayName of days) {
-            
-            const time = row[dayName];
-            if (!time || typeof time !== "string") continue;
-            
+        let weekStart: Date;
 
-            const [startTime, endTime] = time.split("-").map((t) => t.trim());
-            if (!startTime || !endTime) continue;
-
-            const scheduleDate = new Date(weekStart);
-            scheduleDate.setDate(weekStart.getDate() + days.indexOf(dayName));
-
-            // Guardar en MongoDB
-            await db.collection("schedules").insertOne({
-              userId: user._id,
-              employeeID: employeeIDClean,
-              schoolId: school._id,
-              day: dayName,
-              date: scheduleDate,
-              startTime,
-              endTime,
-              createdAt: new Date(),
-            });
-
-            insertedCount++;
-          }
+        if (typeof startDate === "number") {
+          const d = XLSX.SSF.parse_date_code(startDate);
+          weekStart = new Date(Date.UTC(d.y, d.m - 1, d.d));
+        } else {
+          const [y, m, d] = startDate.split("-").map(Number);
+          weekStart = new Date(Date.UTC(y, m - 1, d));
         }
 
-        // Eliminar archivo temporal
-        fs.unlinkSync(file.filepath);
+        weekStart.setUTCHours(0, 0, 0, 0);
 
-        return res.status(200).json({
-          success: true,
-          message: `${insertedCount} horarios cargados correctamente`,
-        });
-      } catch (error) {
-        console.error("Error procesando Excel:", error);
-        return res.status(500).json({ error: "Error procesando archivo" });
+        const weekEnd = new Date(weekStart);
+        weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
+        weekEnd.setUTCHours(23, 59, 59, 999);
+
+        const key = `${user._id}_${weekStart.toISOString()}`;
+
+        if (!weeksToClear.has(key)) {
+          weeksToClear.set(key, {
+            userId: user._id,
+            start: weekStart,
+            end: weekEnd,
+          });
+        }
       }
-    });
-  } 
+
+      /**
+       * 2️⃣ SEGUNDO: borrar TODO lo de esas semanas
+       */
+      for (const [, w] of weeksToClear) {
+        await db.collection("schedules").deleteMany({
+          userId: w.userId,
+          date: {
+            $gte: w.start,
+            $lte: w.end,
+          },
+        });
+      }
+
+      /**
+       * 3️⃣ TERCERO: insertar lo nuevo
+       */
+      for (const row of rows) {
+        const { employeeID, startDate, schoolID } = row;
+        if (!employeeID || !startDate || !schoolID) continue;
+
+        const employeeIDClean = String(employeeID).trim();
+
+        const user = await db
+          .collection("users")
+          .findOne({ employeeID: employeeIDClean });
+        if (!user) continue;
+
+        const school = await db
+          .collection("schools")
+          .findOne({ _id: new ObjectId(schoolID) });
+        if (!school) continue;
+
+        let weekStart: Date;
+
+        if (typeof startDate === "number") {
+          const d = XLSX.SSF.parse_date_code(startDate);
+          weekStart = new Date(Date.UTC(d.y, d.m - 1, d.d));
+        } else {
+          const [y, m, d] = startDate.split("-").map(Number);
+          weekStart = new Date(Date.UTC(y, m - 1, d));
+        }
+
+        weekStart.setUTCHours(0, 0, 0, 0);
+
+        for (const dayName of days) {
+          const time = row[dayName];
+          if (!time || typeof time !== "string") continue;
+
+          const [startTime, endTime] = time.split("-").map(t => t.trim());
+          if (!startTime || !endTime) continue;
+
+          const scheduleDate = new Date(weekStart);
+          scheduleDate.setUTCDate(
+            weekStart.getUTCDate() + days.indexOf(dayName),
+          );
+          scheduleDate.setUTCHours(0, 0, 0, 0);
+
+          await db.collection("schedules").insertOne({
+            userId: user._id,
+            employeeID: employeeIDClean,
+            schoolId: school._id,
+            day: dayName,
+            date: scheduleDate,
+            startTime,
+            endTime,
+            createdAt: new Date(),
+          });
+
+          insertedCount++;
+        }
+      }
+
+      fs.unlinkSync(file.filepath);
+
+      return res.status(200).json({
+        success: true,
+        message: `${insertedCount} horarios cargados correctamente`,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Error procesando archivo" });
+    }
+  });
 }
