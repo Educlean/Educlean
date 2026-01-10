@@ -55,6 +55,13 @@ export default function UploadFile() {
         body: formData,
       });
 
+      if (res.ok) {
+        localStorage.setItem(
+          "schedulesUpdatedAt",
+          Date.now().toString()
+        );
+      }
+
       const data = await res.json();
 
       if (res.ok) {

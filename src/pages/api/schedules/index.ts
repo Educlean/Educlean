@@ -63,7 +63,7 @@ export default async function handler(
       let insertedCount = 0;
 
       /**
-       * 1️⃣ PRIMERO: detectar TODAS las semanas que hay que limpiar
+       * Detect all the weerks to clear first
        */
       const weeksToClear = new Map<
         string,
@@ -109,7 +109,7 @@ export default async function handler(
       }
 
       /**
-       * 2️⃣ SEGUNDO: borrar TODO lo de esas semanas
+       * Delete previous schedules for the detected weeks
        */
       for (const [, w] of weeksToClear) {
         await db.collection("schedules").deleteMany({
@@ -122,7 +122,7 @@ export default async function handler(
       }
 
       /**
-       * 3️⃣ TERCERO: insertar lo nuevo
+       * Insert new schedules
        */
       for (const row of rows) {
         const { employeeID, startDate, schoolID } = row;
@@ -185,10 +185,13 @@ export default async function handler(
       return res.status(200).json({
         success: true,
         message: `${insertedCount} horarios cargados correctamente`,
+        
       });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Error procesando archivo" });
     }
+    
   });
+  
 }

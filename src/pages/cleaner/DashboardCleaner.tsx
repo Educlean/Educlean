@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 import { useUser } from "../../context/UserContext";
 import { Send } from "lucide-react";
 import { isToday } from "../../../lib/timezone";
+import { useCallback } from "react";
+
 
 interface Schedule {
   _id: string;
@@ -37,44 +39,55 @@ const DashboardCleaner = () => {
     }
   }, [user]);
 
-  const fetchSchedules = async () => {
-    if (!user?.employeeID) {
-      setError("User data not available");
-      setLoading(false);
-      return;
+  
+
+const fetchSchedules = useCallback(async () => {
+  if (!user?.employeeID) {
+    setError("User data not available");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    setLoading(true);
+    setError(null);
+
+    const response = await fetch(
+      `/api/schedules/cleaner?employeeID=${user.employeeID}`,
+      { cache: "no-store" }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch schedules");
     }
 
-    try {
-      setLoading(true);
-      setError(null);
+    const data = await response.json();
+    setSchedules(data);
 
-      const response = await fetch(
-        `/api/schedules/cleaner?employeeID=${user.employeeID}`,
-        {
-          cache: "no-store",
-        }
-      );
+    const todayShift = data.find(
+      (schedule: Schedule) => isToday(schedule.date)
+    );
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch schedules");
-      }
+    setTodaySchedule(todayShift || null);
+  } catch (error) {
+    setError("Failed to load schedules. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+}, [user?.employeeID]);
 
-      const data = await response.json();
-      setSchedules(data);
-      console.log("Fetched schedules:", data);
-      // Find today's schedule using UTC timezone
-      const todayShift = data.find(
-        (schedule: Schedule) => isToday(schedule.date)
-      );
-      setTodaySchedule(todayShift || null);
 
-    } catch (error) {
-      console.error("Error fetching schedules:", error);
-      setError("Failed to load schedules. Please try again.");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === "schedulesUpdatedAt") {
+      fetchSchedules();
     }
   };
+
+  window.addEventListener("storage", onStorage);
+  return () => window.removeEventListener("storage", onStorage);
+}, [fetchSchedules]);
+
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
