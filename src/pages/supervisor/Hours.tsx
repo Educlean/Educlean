@@ -110,7 +110,7 @@ export default function SupervisorHours() {
         description="Review total hours worked by each cleaner across your schools."
       />
 
-      <div className="p-10 lg:mx-0 flex flex-col gap-5">
+      <div className="p-5 lg:mx-0 flex flex-col gap-5">
         <div className="flex flex-col md:flex-row gap-4 md:items-end bg-white border border-gray-100 p-4 rounded-xl shadow-sm">
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
