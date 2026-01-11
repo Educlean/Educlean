@@ -4,7 +4,7 @@ import ArrowDown from "../../assets/icons/ArrowDown.svg";
 import Image from "next/image";
 import React from "react";
 
-type Status = "Pending" | "In progress" | "Completed";
+type Status = "todo" | "in_progress" | "done";
 
 export interface CardProps {
   school?: string;
@@ -44,16 +44,16 @@ function Card({
         <div className="flex flex-row justify-between">
           <div className="flex flex-row gap-3">
             <p>{`${title} (${room})`}</p>
-            <p
-              className={`${status === "Pending"
-                  ? "text-red-500 bg-red-100 rounded px-1"
-                  : status === "In progress"
-                    ? "text-blue-900 bg-blue-50 rounded px-1"
-                    : "text-primary bg-green-100 rounded px-1"
-                } font-bold`}
-            >
-              {status}
-            </p>
+       <p
+         className={`${status === "todo"
+             ? "text-red-500 bg-red-100 rounded px-1"
+             : status === "in_progress"
+               ? "text-blue-900 bg-blue-50 rounded px-1"
+               : "text-primary bg-green-100 rounded px-1"
+         } font-bold`}
+       >
+             {status === "in_progress" ? "In Progress" : status}
+       </p>
           </div>
 
           <Image
