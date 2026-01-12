@@ -56,14 +56,20 @@ export default async function handler(
 
       const workbook = XLSX.readFile(file.filepath);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows: ScheduleRow[] =
-        XLSX.utils.sheet_to_json<ScheduleRow>(sheet);
+
+      const rows: ScheduleRow[] = XLSX.utils
+        .sheet_to_json<ScheduleRow>(sheet)
+        .map(r => ({
+          ...r,
+          employeeID: r.employeeID?.toString().trim(),
+          schoolID: r.schoolID?.toString().trim(),
+        }));
 
       const db: Db = await getDb();
       let insertedCount = 0;
 
       /**
-       * Detect all the weerks to clear first
+       * Detect weeks to clear
        */
       const weeksToClear = new Map<
         string,
@@ -74,11 +80,9 @@ export default async function handler(
         const { employeeID, startDate } = row;
         if (!employeeID || !startDate) continue;
 
-        const employeeIDClean = String(employeeID).trim();
-
         const user = await db
           .collection("users")
-          .findOne({ employeeID: employeeIDClean });
+          .findOne({ employeeID });
         if (!user) continue;
 
         let weekStart: Date;
@@ -109,30 +113,30 @@ export default async function handler(
       }
 
       /**
-       * Delete previous schedules for the detected weeks
+       * Clear previous schedules
        */
       for (const [, w] of weeksToClear) {
         await db.collection("schedules").deleteMany({
           userId: w.userId,
-          date: {
-            $gte: w.start,
-            $lte: w.end,
-          },
+          date: { $gte: w.start, $lte: w.end },
         });
       }
 
       /**
-       * Insert new schedules
+       * Insert schedules
        */
       for (const row of rows) {
         const { employeeID, startDate, schoolID } = row;
         if (!employeeID || !startDate || !schoolID) continue;
 
-        const employeeIDClean = String(employeeID).trim();
+        if (!ObjectId.isValid(schoolID)) {
+          console.error("schoolID inválido:", schoolID);
+          continue;
+        }
 
         const user = await db
           .collection("users")
-          .findOne({ employeeID: employeeIDClean });
+          .findOne({ employeeID });
         if (!user) continue;
 
         const school = await db
@@ -167,7 +171,7 @@ export default async function handler(
 
           await db.collection("schedules").insertOne({
             userId: user._id,
-            employeeID: employeeIDClean,
+            employeeID,
             schoolId: school._id,
             day: dayName,
             date: scheduleDate,
@@ -185,13 +189,10 @@ export default async function handler(
       return res.status(200).json({
         success: true,
         message: `${insertedCount} horarios cargados correctamente`,
-        
       });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Error procesando archivo" });
     }
-    
   });
-  
 }
