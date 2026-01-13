@@ -143,7 +143,7 @@ export default function CreateSchoolRequest() {
             <div className="flex justify-end gap-3">
               <button
                 type="submit"
-                className="px-5 py-2 rounded-md bg-green-500 text-white"
+                className="px-5 py-2 rounded-md bg-green-500 text-white cursor-pointer hover:bg-green-600 transition"
               >
                 Submit request
               </button>
