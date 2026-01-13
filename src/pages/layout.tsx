@@ -11,33 +11,36 @@ type LayoutProps = {
   children: ReactNode;
 };
 
+const PUBLIC_ROUTES = ["/public/school-request"];
+
 export default function Layout({ children }: LayoutProps) {
   const { user, loading } = useUser();
   const router = useRouter();
 
+  const isPublicRoute = PUBLIC_ROUTES.some((route) =>
+    router.pathname.startsWith(route)
+  );
+
   useEffect(() => {
+    if (isPublicRoute) return;
     if (loading) return;
 
     if (!user) {
       router.replace("/login");
-      return;
     }
-  }, [loading, user, router]);
+  }, [loading, user, router.pathname, isPublicRoute, router]);
 
-  // --------------------------------------------------
-  // ❗ SOLUCIÓN: NADA DE NADA HASTA SABER USER
-  // --------------------------------------------------
-  if (loading || !user) {
-    return null; // <- evita el mismatch TOTALMENTE
+  // 👉 RUTA PÚBLICA: sin auth, sin layout, sin drama
+  if (isPublicRoute) {
+    return <>{children}</>;
   }
 
-  // --------------------------------------------------
-  // UNA VEZ TENEMOS USER, YA ES SEGURO RENDERIZAR
-  // --------------------------------------------------
+  // 👉 RUTAS PRIVADAS: esperar user
+  if (loading || !user) {
+    return null;
+  }
 
   const renderNavigation = () => {
-    if (!user) return null;
-
     switch (user.role?.toLowerCase()) {
       case "supervisor":
         return <SnavBar />;
@@ -48,23 +51,22 @@ export default function Layout({ children }: LayoutProps) {
     }
   };
 
-return (
-  <div className="min-h-screen flex flex-col">
-    <Header />
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
 
-    <div className="flex flex-1 flex-col lg:flex-row-reverse">
-      <main className="flex-1 lg:bg-[var(--light-gray)] relative">
-        {children}
-      </main>
+      <div className="flex flex-1 flex-col lg:flex-row-reverse">
+        <main className="flex-1 lg:bg-[var(--light-gray)] relative">
+          {children}
+        </main>
 
-      <div
-        id="nav-placeholder"
-        className="lg:h-screen lg:overflow-y-auto"
-      >
-        {renderNavigation()}
+        <div
+          id="nav-placeholder"
+          className="lg:h-screen lg:overflow-y-auto"
+        >
+          {renderNavigation()}
+        </div>
       </div>
     </div>
-  </div>
-);
-
+  );
 }

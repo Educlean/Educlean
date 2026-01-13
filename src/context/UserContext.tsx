@@ -7,6 +7,7 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
+import { useRouter } from "next/router";
 import { User } from "../../lib/types";
 
 interface UserContextType {
@@ -17,12 +18,19 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+// 👇 URLs públicas reales
+const PUBLIC_ROUTES = ["/public/schoolRequest"];
+
 export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const router = useRouter();
+
+  // 👇 esto SÍ existe ahora
+  const isPublicRoute = PUBLIC_ROUTES.includes(router.pathname);
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  // reusable fetch that populates the full user from the server
+
   const fetchMe = async () => {
-    setLoading(true);
     try {
       const res = await fetch("/api/auth/me", { credentials: "include" });
       if (res.ok) {
@@ -38,24 +46,25 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // 🔹 Al montar
   useEffect(() => {
-    // On mount try to populate user from server (cookie is httpOnly)
-    fetchMe();
-  }, []);
+    if (isPublicRoute) {
+      setLoading(false);
+      return;
+    }
 
-  // Listen for an immediate client-side login event so the
-  // context can be updated instantly (the server will still
-  // validate the cookie on the next /api/auth/me call).
+    fetchMe();
+  }, [isPublicRoute]);
+
+  // 🔹 Evento login solo en rutas privadas
   useEffect(() => {
+    if (isPublicRoute) return;
+
     const onLogin = (ev: Event) => {
       try {
         const detail = (ev as CustomEvent).detail;
         if (!detail) return;
 
-        // set a minimal user so pages depending on role/accountId
-        // can react immediately (redirects). Then request the
-        // full user data from the server and replace the minimal
-        // user with the real one.
         const minimalUser: User = {
           role: detail.role || "",
           accountId: detail.accountId || "",
@@ -69,16 +78,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         };
 
         setUser(minimalUser);
-        // fetch the complete user record from the server
         fetchMe();
       } catch {
-        // noop
+        // silencio absoluto
       }
     };
 
     window.addEventListener("edu:login", onLogin as EventListener);
-    return () => window.removeEventListener("edu:login", onLogin as EventListener);
-  }, []);
+    return () =>
+      window.removeEventListener("edu:login", onLogin as EventListener);
+  }, [isPublicRoute]);
+
+  // ✅ RUTA PÚBLICA: sin auth, sin loading, sin redirects
+  if (isPublicRoute) {
+    return <>{children}</>;
+  }
 
   return (
     <UserContext.Provider value={{ user, setUser, loading }}>
@@ -89,6 +103,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
 export const useUser = () => {
   const ctx = useContext(UserContext);
-  if (!ctx) throw new Error("useUser must be used inside UserProvider");
+  if (!ctx) {
+    throw new Error("useUser must be used inside UserProvider");
+  }
   return ctx;
 };

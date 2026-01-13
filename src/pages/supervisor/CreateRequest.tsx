@@ -89,7 +89,6 @@ export default function CreateRequest() {
             type="text"
             className="border border-gray-300 h-10 p-3 rounded-lg"
             placeholder="Create Password"
-            required
           ></input>
         </div>
         <div className="flex flex-col gap-2">
