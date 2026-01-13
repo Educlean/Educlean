@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import Cleaner from "../../../assets/Images/cleaner.jpg";
+import Cleaner from "@/assets/Images/cleaner.jpg";
 
 type School = {
   _id: string;
