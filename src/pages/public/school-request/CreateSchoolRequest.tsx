@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import Cleaner from "@/assets/Images/cleaner.jpg";
+
 
 type School = {
   _id: string;
@@ -73,7 +73,7 @@ export default function CreateSchoolRequest() {
           
           <div className="hidden lg:block">
             <Image
-              src={Cleaner}
+              src={"../../../assets/cleaner.jpg"}
               alt="School cleaning"
               className="w-full h-full p-5 object-cover object-center"
             />
