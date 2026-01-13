@@ -7,19 +7,25 @@ export interface EmployeeProps {
   className: string;
 }
 
-function employeeCard ({ name, className }: EmployeeProps) {
+function EmployeeCard({ name, className }: EmployeeProps) {
   console.log("Rendering EmployeeCard for:", name, "with className:", className);
-  const initials: string[] = name?.split(" ") || [];
+
+
+ const nameParts = (name?.split(" ") || []).filter(Boolean); // elimina strings vacíos
+let initials = "";
+
+if (nameParts.length >= 2) {
+  initials = nameParts[0][0] + nameParts[nameParts.length - 1][0];
+} else if (nameParts.length === 1) {
+  initials = nameParts[0][0];
+}
+
 
   return (
     <div className="flex flex-row justify-between items-center border-b border-gray-300 pb-3">
       <div className={`${className} flex flex-row gap-3 items-center`}>
         <div className="rounded-full bg-[var(--accent)] w-6 h-6 flex items-center justify-center">
-          {initials.map((p, i) => (
-            <span className="text-white text-sm text-center" key={i}>
-              {p[0]}
-            </span>
-          ))}
+          <span className="text-white text-sm text-center">{initials}</span>
         </div>
         <p className="text-xl">{name}</p>
       </div>
@@ -30,5 +36,4 @@ function employeeCard ({ name, className }: EmployeeProps) {
   );
 }
 
-
-export default React.memo(employeeCard);
+export default React.memo(EmployeeCard);
