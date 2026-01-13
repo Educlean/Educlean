@@ -26,6 +26,14 @@ export default function SupervisorHours() {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
+  const formatLocalDate = (dateString: string) => {
+    const parsed = new Date(dateString);
+    if (Number.isNaN(parsed.getTime())) {
+      return dateString;
+    }
+    return format(parsed, "yyyy-MM-dd");
+  };
+
   useEffect(() => {
     const d = format(new Date(), "yyyy-MM-dd", {
       timeZone: "UTC",
@@ -199,13 +207,12 @@ export default function SupervisorHours() {
                       <tbody>
                         {group.rows.map((row) => (
                           <tr
-                            key={`${group.employeeID}-${row.date}-${
-                              row.schoolName || "unknown"
-                            }`}
+                            key={`${group.employeeID}-${row.date}-${row.schoolName || "unknown"
+                              }`}
                             className="border-t border-gray-50 hover:bg-gray-50/80 transition-colors"
                           >
                             <td className="px-4 py-2 text-gray-800">
-                              {row.date}
+                              {formatLocalDate(row.date)}
                             </td>
                             <td className="px-4 py-2 text-gray-700">
                               {row.schoolName || "Unknown school"}

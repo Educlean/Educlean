@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../../lib/mongodb";
-import { getUtcDateString } from "../../../../lib/timezone";
+import { getUtcDateString, getUtcDayBounds } from "../../../../lib/timezone";
 
 export default async function handler(
   req: NextApiRequest,
@@ -31,17 +31,20 @@ export default async function handler(
       start = end;
     }
 
+    const { startOfDay } = getUtcDayBounds(start!);
+    const { endOfDay } = getUtcDayBounds(end!);
+
     const db = await getDb();
 
     const pipeline = [
       {
         $match: {
           status: "completed",
-          date: {
-            $gte: start,
-            $lte: end,
+          clockInTime: {
+            $ne: null,
+            $gte: startOfDay,
+            $lte: endOfDay,
           },
-          clockInTime: { $ne: null },
           clockOutTime: { $ne: null },
         },
       },
