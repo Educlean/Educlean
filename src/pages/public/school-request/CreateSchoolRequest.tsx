@@ -52,7 +52,7 @@ export default function CreateSchoolRequest() {
     });
 
     alert("Request sent successfully");
-    router.push("/"); // o donde quieras mandar al colegio después
+    router.push("/public/school-request/CreateSchoolRequest"); 
   };
 
   return (
