@@ -46,14 +46,14 @@ function SDashboardContent() {
 
   useEffect(() => {
     const d = format(new Date(), "yyyy-MM-dd", {
-      timeZone: "UTC",
+      timeZone: "America/Vancouver",
     });
     setCurrentDate(d);
   }, []);
 
   const { data: requests = [], isLoading: loadingRequests } = useSWR<
     CardProps[]
-  >(currentDate ? `/api/requests/byDay?date=${currentDate}` : null, fetcher);
+  >(currentDate ? `/api/requests/byDay?date=${currentDate}&tz=America/Vancouver` : null, fetcher);
 
   const { data: schools = [], isLoading: loadingSchools } =
     useSWR<School[]>(`/api/schools`, fetcher);
