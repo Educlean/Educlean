@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import Claner from "../../../assets/images/cleaner.jpg";
+import Claner from "../../../assets/Images/cleaner.jpg";
 
 
 type School = {
