@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { findOne, insertOne, updateOne } from "../../../../lib/helpers";
 import { ObjectId } from "mongodb";
-import { getUtcDateString } from "../../../../lib/timezone";
+import { getLocalDateString, getUtcDateString } from "../../../../lib/timezone";
 
 interface ClockRequest {
   employeeID: string;
@@ -78,7 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    const today = getUtcDateString(); // Get today's date in UTC
+    const today = getLocalDateString(); // Get today's date in UTC
     const now = new Date();
 
     if (action === 'clock_in') {
