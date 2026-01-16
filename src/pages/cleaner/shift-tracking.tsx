@@ -218,6 +218,7 @@ const ShiftTracking = () => {
           longitude: locationCheck.currentCoords.longitude,
           action: "clock_in",
           date: getLocalDateString(),
+          clientTime: new Date().toISOString(),
         }),
       });
 
@@ -294,6 +295,7 @@ const ShiftTracking = () => {
           longitude: locationCheck.currentCoords.longitude,
           action: "clock_out",
           date: getLocalDateString(),
+          clientTime: new Date().toISOString(),
         }),
       });
 

@@ -10,6 +10,7 @@ interface ClockRequest {
   longitude: number;
   action: 'clock_in' | 'clock_out';
   date: string;
+  clientTime: string;
 }
 
 interface ClockRecord {
@@ -54,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { employeeID, schoolId, latitude, longitude, action, date }: ClockRequest = req.body;
+    const { employeeID, schoolId, latitude, longitude, action, date, clientTime }: ClockRequest = req.body;
 
     if (!employeeID || !schoolId || !latitude || !longitude || !action) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -80,7 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const today = date; // Get today's date in UTC
-    const now = new Date();
+    const now = new Date(clientTime);
 
     if (action === 'clock_in') {
       // Check if already clocked in today
@@ -103,8 +104,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         clockInLocation: { latitude, longitude },
         date: today,
         status: 'clocked_in',
-        createdAt: now,
-        updatedAt: now
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await insertOne("clock_records", clockRecord);
@@ -137,7 +138,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           clockOutTime: now,
           clockOutLocation: { latitude, longitude },
           status: 'completed',
-          updatedAt: now
+          updatedAt: new Date()
         }
       );
 
