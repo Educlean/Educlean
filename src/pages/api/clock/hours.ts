@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../../lib/mongodb";
-import { getUtcDateString } from "../../../../lib/timezone";
+import { getLocalDateString, getUtcDateString } from "../../../../lib/timezone";
 
 export default async function handler(
   req: NextApiRequest,
@@ -22,7 +22,7 @@ export default async function handler(
     }
 
     if (!start && !end) {
-      const today = getUtcDateString();
+      const today = getLocalDateString();
       start = today;
       end = today;
     } else if (start && !end) {

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "../../context/UserContext";
 import { Send } from "lucide-react";
-import { isToday } from "../../../lib/timezone";
+import { getLocalDateString } from "../../../lib/timezone";
 
 interface Schedule {
   _id: string;
@@ -37,7 +37,7 @@ const DashboardCleaner = () => {
     }
   }, [user]);
 
-  
+
 
   const fetchSchedules = async () => {
     if (!user?.employeeID) {
@@ -66,7 +66,11 @@ const DashboardCleaner = () => {
       console.log("Fetched schedules:", data);
       // Find today's schedule using UTC timezone
       const todayShift = data.find(
-        (schedule: Schedule) => isToday(schedule.date)
+        (schedule: Schedule) => {
+          const scheduleDatePart = schedule.date.split("T")[0];
+          const todayDatePart = getLocalDateString();
+          return scheduleDatePart === todayDatePart;
+        }
       );
       setTodaySchedule(todayShift || null);
 

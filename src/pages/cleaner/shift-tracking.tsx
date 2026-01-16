@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { GeolocationService, Coordinates } from "../../../lib/geolocation";
 import { useUser } from "../../context/UserContext";
+import { getLocalDateString, isToday } from "../../../lib/timezone";
+
 // Interfaces mantenidas y añadidas
 interface ShiftData {
   school: string;
@@ -32,6 +34,7 @@ interface CleanerScheduleItem {
   startTime: string; // e.g., "09:00"
   endTime: string; // e.g., "17:00"
   room?: string;
+  date: string;
   // Añadir cualquier otro campo que venga de esa API si es necesario
 }
 
@@ -91,9 +94,11 @@ const ShiftTracking = () => {
       setLoading(true);
       setError(null);
 
+      const localDateString = getLocalDateString();
+
       // Fetch current clock status
       const response = await fetch(
-        `/api/clock/status?employeeID=${user.employeeID}&schoolId=${schoolId}`
+        `/api/clock/status?employeeID=${user.employeeID}&schoolId=${schoolId}&date=${localDateString}`
       );
 
       if (!response.ok) {
@@ -125,7 +130,11 @@ const ShiftTracking = () => {
 
         // Uso del tipado al hacer el find
         const todaySchedule = scheduleData.find(
-          (schedule) => schedule.schoolId === schoolId // 'schedule' está tipado como CleanerScheduleItem
+          (schedule: any) => {
+            const scheduleDatePart = schedule.date.split("T")[0];
+            const todayDatePart = getLocalDateString();
+            return schedule.schoolId === schoolId && scheduleDatePart === todayDatePart;
+          }
         );
 
         if (todaySchedule) {
@@ -208,6 +217,7 @@ const ShiftTracking = () => {
           latitude: locationCheck.currentCoords.latitude,
           longitude: locationCheck.currentCoords.longitude,
           action: "clock_in",
+          date: getLocalDateString(),
         }),
       });
 
@@ -283,6 +293,7 @@ const ShiftTracking = () => {
           latitude: locationCheck.currentCoords.latitude,
           longitude: locationCheck.currentCoords.longitude,
           action: "clock_out",
+          date: getLocalDateString(),
         }),
       });
 
@@ -426,11 +437,10 @@ const ShiftTracking = () => {
         <button
           onClick={handleClockIn}
           disabled={isClockInDisabled}
-          className={`w-full py-4 rounded-lg font-medium text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-            isClockInDisabled
-              ? "bg-gray-300 text-gray-500"
-              : "bg-[#39B52D] text-white hover:bg-[#2d8a22]"
-          }`}
+          className={`w-full py-4 rounded-lg font-medium text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${isClockInDisabled
+            ? "bg-gray-300 text-gray-500"
+            : "bg-[#39B52D] text-white hover:bg-[#2d8a22]"
+            }`}
         >
           {isClockingIn && (
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -442,11 +452,10 @@ const ShiftTracking = () => {
         <button
           onClick={handleClockOut}
           disabled={isClockOutDisabled}
-          className={`w-full py-4 rounded-lg font-medium text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-            isClockOutDisabled
-              ? "bg-gray-300 text-gray-500"
-              : "bg-[#39B52D] text-white hover:bg-[#2d8a22]"
-          }`}
+          className={`w-full py-4 rounded-lg font-medium text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${isClockOutDisabled
+            ? "bg-gray-300 text-gray-500"
+            : "bg-[#39B52D] text-white hover:bg-[#2d8a22]"
+            }`}
         >
           {isClockingOut && (
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>

@@ -9,6 +9,7 @@ interface ClockRequest {
   latitude: number;
   longitude: number;
   action: 'clock_in' | 'clock_out';
+  date: string;
 }
 
 interface ClockRecord {
@@ -39,10 +40,10 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   const Δφ = (lat2 - lat1) * Math.PI / 180;
   const Δλ = (lon2 - lon1) * Math.PI / 180;
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-          Math.cos(φ1) * Math.cos(φ2) *
-          Math.sin(Δλ/2) * Math.sin(Δλ/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return R * c; // Distance in meters
 }
@@ -53,7 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { employeeID, schoolId, latitude, longitude, action }: ClockRequest = req.body;
+    const { employeeID, schoolId, latitude, longitude, action, date }: ClockRequest = req.body;
 
     if (!employeeID || !schoolId || !latitude || !longitude || !action) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -70,15 +71,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const maxDistance = 150; // meters
 
     if (distance > maxDistance) {
-      return res.status(403).json({ 
-        error: "Location verification failed", 
+      return res.status(403).json({
+        error: "Location verification failed",
         message: `You must be within ${maxDistance} meters of the school to clock in/out. Current distance: ${Math.round(distance)} meters.`,
         distance: Math.round(distance),
         maxDistance
       });
     }
 
-    const today = getLocalDateString(); // Get today's date in UTC
+    const today = date; // Get today's date in UTC
     const now = new Date();
 
     if (action === 'clock_in') {
@@ -107,7 +108,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       };
 
       const result = await insertOne("clock_records", clockRecord);
-      
+
       return res.status(200).json({
         success: true,
         message: "Successfully clocked in",
@@ -130,7 +131,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Update record with clock out information
-      await updateOne("clock_records", 
+      await updateOne("clock_records",
         clockRecord._id!.toString(),
         {
           clockOutTime: now,

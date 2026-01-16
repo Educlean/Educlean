@@ -12,20 +12,20 @@ export default async function handler(
   }
 
   try {
-    const { employeeID, schoolId } = req.query;
+    const { employeeID, schoolId, date } = req.query;
 
     if (!employeeID || !schoolId) {
       return res.status(400).json({ error: "Missing employeeID or schoolId" });
     }
 
     const db = await getDb();
-    const today = getUtcDateString(); // Get today's date in UTC
+
 
     // Get today's clock record
     const clockRecord = await db.collection("clock_records").findOne({
       employeeID: employeeID as string,
       schoolId: new ObjectId(schoolId as string),
-      date: today,
+      date: date,
     });
 
     // Get school information
@@ -65,7 +65,7 @@ export default async function handler(
           longitude: school.lng,
         },
       },
-      date: today,
+      date: date,
     });
   } catch (error) {
     console.error("Clock status API error:", error);
