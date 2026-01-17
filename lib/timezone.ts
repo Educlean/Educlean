@@ -87,7 +87,7 @@ export function getUtcWeekBounds(): {
   startOfWeek.setHours(0, 0, 0, 0);
 
   const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  endOfWeek.setDate(startOfWeek.getDate() + 7);
   endOfWeek.setHours(23, 59, 59, 999);
 
   return { startOfWeek, endOfWeek };
