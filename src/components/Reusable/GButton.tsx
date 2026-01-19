@@ -2,6 +2,7 @@ type ButtonProps = {
   label: string;
   onClick?: () => void;
   className?: string;
+  disabled?: boolean;
 };
 
 export default function GButton({ label, onClick, className }: ButtonProps) {
