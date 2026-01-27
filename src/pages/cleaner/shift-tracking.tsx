@@ -116,8 +116,25 @@ const ShiftTracking = () => {
       }
 
       // Fetch schedule data for today
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - dayOfWeek);
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+      const formatDateParam = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      const startDate = formatDateParam(startOfWeek);
+      const endDate = formatDateParam(endOfWeek);
+
       const scheduleResponse = await fetch(
-        `/api/schedules/cleaner?employeeID=${user.employeeID}`
+        `/api/schedules/cleaner?employeeID=${user.employeeID}&startDate=${startDate}&endDate=${endDate}`
       );
 
       let scheduledTime = "Not scheduled";
